@@ -1,11 +1,5 @@
-﻿@import 'tailwindcss';
+@import "tailwindcss";
 
-/* ============================================================
-   AI Data Analytics Copilot — Global Styles
-   Design tokens and base styles for the entire application
-   ============================================================ */
-
-/* Custom CSS properties (design tokens) */
 :root {
   --color-bg-primary: #0a0e1a;
   --color-bg-secondary: #111827;
@@ -23,7 +17,6 @@
   --color-error: #ef4444;
 }
 
-/* Base reset and body styles */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -36,28 +29,13 @@ body {
   color: var(--color-text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }

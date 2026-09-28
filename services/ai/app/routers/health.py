@@ -1,4 +1,4 @@
-﻿# Health check router for the FastAPI AI service
+# Health check router for the FastAPI AI service
 
 from fastapi import APIRouter
 from datetime import datetime, timezone

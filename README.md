@@ -1,4 +1,4 @@
-﻿# AI Data Analytics Copilot
+ AI Data Analytics Copilot
 
 > Upload a dataset. Get automated cleaning, EDA, AI insights, and a BI report.
 

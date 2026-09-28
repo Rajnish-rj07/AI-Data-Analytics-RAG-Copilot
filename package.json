@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "ai-data-analytics-copilot",
   "version": "1.0.0",
   "description": "AI-powered data analytics platform. Upload a dataset and get cleaning, EDA, RAG insights, and BI reports.",
@@ -6,7 +6,6 @@
   "scripts": {
     "dev:web": "pnpm --filter web dev",
     "dev:api": "pnpm --filter api dev",
-    "dev": "pnpm run dev:web & pnpm run dev:api",
     "install:all": "pnpm install"
   },
   "engines": {

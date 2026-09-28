@@ -1,4 +1,4 @@
-﻿# FastAPI — AI Data Analytics Service
+#FastAPI — AI Data Analytics Service
 # Phase 1 Foundation: only health check endpoint
 # More routes will be added as we implement each feature
 

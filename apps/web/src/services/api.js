@@ -52,6 +52,16 @@ export const datasetsApi = {
     const res = await api.get(`/datasets/${id}/profile`)
     return res.data
   },
+
+  getCleaningPlan: async (id) => {
+    const res = await api.get(`/datasets/${id}/cleaning-plan`)
+    return res.data
+  },
+
+  applyClean: async (id, config) => {
+    const res = await api.post(`/datasets/${id}/clean`, config)
+    return res.data
+  },
 }
 
 export default api

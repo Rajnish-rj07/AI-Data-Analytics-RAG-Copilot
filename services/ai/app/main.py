@@ -1,4 +1,4 @@
-#FastAPI — AI Data Analytics Service
+#FastAPI - AI Data Analytics Service
 # Phase 1 Foundation: only health check endpoint
 # More routes will be added as we implement each feature
 
@@ -8,22 +8,19 @@ from dotenv import load_dotenv
 import os
 
 from app.routers import health
+from app.routers import datasets
+from app.routers import cleaning
 
-# Load environment variables
 load_dotenv()
 
-# ── Application Setup ─────────────────────────────────────────────────────────
 app = FastAPI(
-    title="AI Data Analytics Copilot — AI Service",
+    title="AI Data Analytics Copilot - AI Service",
     description="Python/FastAPI service for data processing, EDA, RAG, and report generation.",
     version="1.0.0",
-    docs_url="/docs",       # Swagger UI at http://localhost:8000/docs
-    redoc_url="/redoc",     # ReDoc at http://localhost:8000/redoc
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
-# In production, restrict this to the Node.js API URL only
-# We never want the browser calling FastAPI directly
 ALLOWED_ORIGINS = [
     os.getenv("NODE_API_URL", "http://localhost:3001"),
 ]
@@ -36,9 +33,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routers ───────────────────────────────────────────────────────────────────
-# Include health router — more routers will be added in future phases
+# Health check (root level for Node proxy + versioned)
+app.include_router(health.router, tags=["Health"])
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])
 
-# Also expose /health at root level for the Node.js health check proxy
-app.include_router(health.router, tags=["Health"])
+# Dataset upload and validation (Phase 2)
+app.include_router(datasets.router, prefix="/api/v1", tags=["Datasets"])
+
+# Data cleaning assistant (Phase 4)
+app.include_router(cleaning.router, prefix="/api/v1", tags=["Cleaning"])

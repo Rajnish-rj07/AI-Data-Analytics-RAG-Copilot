@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import axios from 'axios'
+import mongoose from 'mongoose'
 
 export const healthRouter = Router()
 
@@ -18,6 +19,9 @@ healthRouter.get('/health', async (req, res) => {
     aiServiceMessage = 'FastAPI service is unreachable'
   }
 
+  const dbState = mongoose.connection.readyState
+  const dbStatus = dbState === 1 ? 'ok' : dbState === 2 ? 'connecting' : 'disconnected'
+
   res.json({
     success: true,
     message: 'Node.js API is running',
@@ -26,6 +30,7 @@ healthRouter.get('/health', async (req, res) => {
       api: 'ok',
       ai: aiServiceStatus,
       aiMessage: aiServiceMessage,
+      database: dbStatus,
     },
   })
 })

@@ -125,11 +125,11 @@ After all three services are running:
 | Phase | Feature | Status |
 |---|---|---|
 | 1 | Foundation (React + Node + FastAPI) | ✅ Complete |
-| 2 | Dataset Upload | 🔜 Next |
-| 3 | Data Profiling | ⏳ Planned |
-| 4 | Data Cleaning | ⏳ Planned |
-| 5 | EDA Engine | ⏳ Planned |
-| 6 | RAG Analytics | ⏳ Planned |
+| 2 | Dataset Upload & Preview | ✅ Complete |
+| 3 | Data Profiling (Deep Analytics) | ✅ Complete |
+| 4 | Data Cleaning Assistant | ✅ Complete |
+| 5 | EDA Engine & Smart Visuals | ✅ Complete |
+| 6 | RAG Analytics | 🔜 Next |
 | 7 | BI Reports | ⏳ Planned |
 | 8 | Testing + Polish | ⏳ Planned |
 

@@ -11,6 +11,7 @@ import {
   Database,
   FlaskConical,
   Wand2,
+  LineChart,
 } from 'lucide-react'
 
 
@@ -25,6 +26,7 @@ import DataQualityBanner from '../components/DataQualityBanner'
 import DatasetHistoryDrawer from '../components/DatasetHistoryDrawer'
 import DeepProfileDashboard from '../components/DeepProfileDashboard'
 import CleaningAssistant from '../components/CleaningAssistant'
+import EdaStudio from '../components/EdaStudio'
 import { datasetsApi, healthApi } from '../services/api'
 
 export default function HomePage() {
@@ -349,6 +351,21 @@ export default function HomePage() {
               </button>
 
               <button
+                onClick={() => setActiveTab('eda')}
+                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
+                  activeTab === 'eda'
+                    ? 'border-purple-500 text-purple-400 bg-purple-500/[0.04]'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <LineChart className="w-4 h-4" />
+                <span>EDA Studio</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/25 uppercase tracking-wider">
+                  Phase 5
+                </span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('health')}
                 className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
                   activeTab === 'health'
@@ -411,7 +428,20 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Tab 5: System Cluster Health (Phase 1 Confirmation) */}
+            {/* Tab 5: Phase 5 Automated EDA Studio */}
+            {activeTab === 'eda' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                  <span>
+                    Automated visual discovery, dynamic multi-dimensional charts, and mathematical insights powered by Pandas & Recharts.
+                  </span>
+                  <span className="font-mono text-[11px] text-purple-400">Phase 5 EDA Engine</span>
+                </div>
+                <EdaStudio dataset={activeDataset} />
+              </div>
+            )}
+
+            {/* Tab 6: System Cluster Health (Phase 1 Confirmation) */}
             {activeTab === 'health' && (
               <div className="p-6 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 space-y-6">
                 <div className="flex items-center justify-between">

@@ -10,6 +10,7 @@ import os
 from app.routers import health
 from app.routers import datasets
 from app.routers import cleaning
+from app.routers import eda
 
 load_dotenv()
 
@@ -42,3 +43,6 @@ app.include_router(datasets.router, prefix="/api/v1", tags=["Datasets"])
 
 # Data cleaning assistant (Phase 4)
 app.include_router(cleaning.router, prefix="/api/v1", tags=["Cleaning"])
+
+# Automated EDA Engine & Smart Visualizations (Phase 5)
+app.include_router(eda.router, prefix="/api/v1", tags=["EDA"])

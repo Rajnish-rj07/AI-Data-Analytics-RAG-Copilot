@@ -280,3 +280,55 @@ datasetRouter.post('/:id/clean', async (req, res) => {
     return res.status(status).json({ success: false, message })
   }
 })
+
+
+/**
+ * GET /api/v1/datasets/:id/eda/summary
+ * Phase 5: Automated EDA insights & smart chart recommendations
+ */
+datasetRouter.get('/:id/eda/summary', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const aiRes = await axios.get(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/eda/summary`,
+      { timeout: 30000 }
+    )
+    return res.json({
+      success: true,
+      datasetId: dataset._id,
+      originalName: dataset.originalName,
+      ...aiRes.data,
+    })
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'Could not retrieve EDA summary.'
+    console.error('[EDA Summary Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})
+
+
+/**
+ * POST /api/v1/datasets/:id/eda/aggregate
+ * Phase 5: Dynamic multi-dimensional aggregation query for custom chart visualizer
+ */
+datasetRouter.post('/:id/eda/aggregate', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const aiRes = await axios.post(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/eda/aggregate`,
+      req.body,
+      { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+    )
+    return res.json(aiRes.data)
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'Aggregation query failed.'
+    console.error('[EDA Aggregate Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})

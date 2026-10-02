@@ -62,6 +62,16 @@ export const datasetsApi = {
     const res = await api.post(`/datasets/${id}/clean`, config)
     return res.data
   },
+
+  getEdaSummary: async (id) => {
+    const res = await api.get(`/datasets/${id}/eda/summary`)
+    return res.data
+  },
+
+  queryEdaAggregate: async (id, query) => {
+    const res = await api.post(`/datasets/${id}/eda/aggregate`, query)
+    return res.data
+  },
 }
 
 export default api

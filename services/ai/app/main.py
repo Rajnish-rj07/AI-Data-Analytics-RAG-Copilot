@@ -11,6 +11,8 @@ from app.routers import health
 from app.routers import datasets
 from app.routers import cleaning
 from app.routers import eda
+from app.routers import rag
+from app.routers import reports
 
 load_dotenv()
 
@@ -46,3 +48,9 @@ app.include_router(cleaning.router, prefix="/api/v1", tags=["Cleaning"])
 
 # Automated EDA Engine & Smart Visualizations (Phase 5)
 app.include_router(eda.router, prefix="/api/v1", tags=["EDA"])
+
+# RAG Analytics — Semantic Q&A over datasets (Phase 6)
+app.include_router(rag.router, prefix="/api/v1", tags=["RAG"])
+
+# BI Reports — Automated Business Intelligence Report Generation (Phase 7)
+app.include_router(reports.router, prefix="/api/v1", tags=["Reports"])

@@ -72,6 +72,21 @@ export const datasetsApi = {
     const res = await api.post(`/datasets/${id}/eda/aggregate`, query)
     return res.data
   },
+
+  indexRag: async (id) => {
+    const res = await api.post(`/datasets/${id}/rag/index`)
+    return res.data
+  },
+
+  getRagStatus: async (id) => {
+    const res = await api.get(`/datasets/${id}/rag/status`)
+    return res.data
+  },
+
+  askRag: async (id, question, topK = 4) => {
+    const res = await api.post(`/datasets/${id}/rag/ask`, { question, top_k: topK })
+    return res.data
+  },
 }
 
 export default api

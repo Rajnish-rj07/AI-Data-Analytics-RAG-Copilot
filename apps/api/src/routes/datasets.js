@@ -332,3 +332,80 @@ datasetRouter.post('/:id/eda/aggregate', async (req, res) => {
     return res.status(status).json({ success: false, message })
   }
 })
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Phase 6 — RAG Analytics (Semantic Q&A over datasets via ChromaDB)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * POST /api/v1/datasets/:id/rag/index
+ * Build/rebuild the ChromaDB vector index for this dataset.
+ * Must be called before asking questions. Idempotent (safe to re-run).
+ */
+datasetRouter.post('/:id/rag/index', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const aiRes = await axios.post(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/rag/index`,
+      {},
+      { headers: { 'Content-Type': 'application/json' }, timeout: 120000 }
+    )
+    return res.json(aiRes.data)
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'RAG indexing failed.'
+    console.error('[RAG Index Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})
+
+
+/**
+ * GET /api/v1/datasets/:id/rag/status
+ * Check whether this dataset has an active vector index.
+ */
+datasetRouter.get('/:id/rag/status', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const aiRes = await axios.get(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/rag/status`,
+      { timeout: 10000 }
+    )
+    return res.json(aiRes.data)
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'Could not check RAG status.'
+    console.error('[RAG Status Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})
+
+
+/**
+ * POST /api/v1/datasets/:id/rag/ask
+ * Ask a natural-language question about this dataset.
+ * Requires the dataset to be indexed first.
+ */
+datasetRouter.post('/:id/rag/ask', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const aiRes = await axios.post(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/rag/ask`,
+      req.body,
+      { headers: { 'Content-Type': 'application/json' }, timeout: 60000 }
+    )
+    return res.json(aiRes.data)
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'Question answering failed.'
+    console.error('[RAG Ask Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})

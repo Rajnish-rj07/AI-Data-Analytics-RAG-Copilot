@@ -12,10 +12,8 @@ import {
   FlaskConical,
   Wand2,
   LineChart,
+  Bot,
 } from 'lucide-react'
-
-
-
 
 import Navbar from '../components/Navbar'
 import FileUploadZone from '../components/FileUploadZone'
@@ -27,6 +25,7 @@ import DatasetHistoryDrawer from '../components/DatasetHistoryDrawer'
 import DeepProfileDashboard from '../components/DeepProfileDashboard'
 import CleaningAssistant from '../components/CleaningAssistant'
 import EdaStudio from '../components/EdaStudio'
+import RagCopilot from '../components/RagCopilot'
 import { datasetsApi, healthApi } from '../services/api'
 
 export default function HomePage() {
@@ -366,6 +365,21 @@ export default function HomePage() {
               </button>
 
               <button
+                onClick={() => setActiveTab('rag')}
+                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
+                  activeTab === 'rag'
+                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Bot className="w-4 h-4" />
+                <span>RAG Copilot</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
+                  Phase 6
+                </span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('health')}
                 className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
                   activeTab === 'health'
@@ -438,6 +452,19 @@ export default function HomePage() {
                   <span className="font-mono text-[11px] text-purple-400">Phase 5 EDA Engine</span>
                 </div>
                 <EdaStudio dataset={activeDataset} />
+              </div>
+            )}
+
+            {/* Tab 6: Phase 6 RAG Copilot */}
+            {activeTab === 'rag' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+                  <span>
+                    Semantic conversational intelligence & Q&A backed by ChromaDB vector store and Python statistical truth.
+                  </span>
+                  <span className="font-mono text-[11px] text-indigo-400">Phase 6 RAG Engine</span>
+                </div>
+                <RagCopilot dataset={activeDataset} />
               </div>
             )}
 

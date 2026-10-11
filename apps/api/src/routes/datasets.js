@@ -144,7 +144,7 @@ datasetRouter.post('/', upload.single('file'), async (req, res) => {
 datasetRouter.get('/', async (req, res) => {
   try {
     const datasets = await Dataset.find({})
-      .select('-columns -columnNames -preview') // Exclude heavy fields from list view
+      .select('-columns -preview') // Exclude heavy column profiling math and raw preview rows from list view
       .sort({ createdAt: -1 })
 
 

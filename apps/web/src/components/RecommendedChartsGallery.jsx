@@ -17,41 +17,36 @@ import {
   Legend,
 } from 'recharts'
 import {
-  BarChart2,
-  PieChart as PieIcon,
-  Activity,
   Maximize2,
   Minimize2,
   Sparkles,
 } from 'lucide-react'
 
 const PALETTE = [
-  '#6366f1', // Indigo
-  '#06b6d4', // Cyan
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#8b5cf6', // Purple
-  '#ec4899', // Pink
-  '#3b82f6', // Blue
-  '#14b8a6', // Teal
+  '#059669', // Emerald (Primary Brand)
+  '#475569', // Slate (Secondary Dimension)
+  '#0f766e', // Deep Teal (Tertiary Category)
+  '#0284c7', // Muted Ocean (Comparative Series)
+  '#d97706', // Warm Ochre (Accent / Highlight)
+  '#4f46e5', // Soft Indigo (Supplementary)
 ]
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null
 
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900/95 p-3 shadow-xl backdrop-blur-md text-xs space-y-1">
-      {label && <p className="font-bold text-slate-200 border-b border-slate-800 pb-1">{label}</p>}
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xl text-xs space-y-1 z-50 text-slate-800">
+      {label && <p className="font-bold text-slate-900 border-b border-slate-100 pb-1">{label}</p>}
       {payload.map((entry, idx) => (
         <div key={idx} className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
             <span
               className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: entry.color || entry.fill || '#6366f1' }}
+              style={{ backgroundColor: entry.color || entry.fill || '#059669' }}
             />
-            <span className="text-slate-400 capitalize">{entry.name}:</span>
+            <span className="text-slate-500 capitalize">{entry.name}:</span>
           </div>
-          <span className="font-mono font-bold text-slate-100">
+          <span className="font-mono font-bold text-slate-900">
             {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
           </span>
         </div>
@@ -65,25 +60,25 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
 
   return (
     <div
-      className={`rounded-2xl glass-panel border border-slate-800 bg-slate-900/60 p-5 flex flex-col justify-between transition-all ${
-        isExpanded ? 'col-span-full ring-2 ring-indigo-500/40' : ''
+      className={`rounded-xl border border-slate-200/90 bg-white p-5 flex flex-col justify-between transition-all shadow-2xs hover:shadow-xs ${
+        isExpanded ? 'col-span-full ring-2 ring-emerald-500/30' : ''
       }`}
     >
       {/* Card Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
               {badge || type}
             </span>
-            <h4 className="text-sm font-bold text-slate-100">{title}</h4>
+            <h4 className="text-sm font-bold text-slate-900">{title}</h4>
           </div>
-          <p className="text-xs text-slate-400 mt-1">{description}</p>
+          <p className="text-xs text-slate-500 mt-1">{description}</p>
         </div>
 
         <button
           onClick={onToggleExpand}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition cursor-pointer shrink-0"
+          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer shrink-0"
           title={isExpanded ? 'Collapse' : 'Expand full width'}
         >
           {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -96,21 +91,22 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
           {/* 1. Bar Chart */}
           {type === 'bar' && (
             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="name"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 10 }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
                 interval={0}
                 angle={data.length > 5 ? -25 : 0}
                 textAnchor={data.length > 5 ? 'end' : 'middle'}
               />
-              <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               {data[0]?.total !== undefined ? (
-                <Bar dataKey="total" fill="#6366f1" radius={[6, 6, 0, 0]} name="Total" />
+                <Bar dataKey="total" fill="#059669" radius={[4, 4, 0, 0]} name="Total" />
               ) : (
-                <Bar dataKey="count" fill="#06b6d4" radius={[6, 6, 0, 0]} name="Count" />
+                <Bar dataKey="count" fill="#0284c7" radius={[4, 4, 0, 0]} name="Count" />
               )}
             </BarChart>
           )}
@@ -118,18 +114,19 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
           {/* 2. Grouped Bar Chart */}
           {type === 'grouped_bar' && (
             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="name"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 10 }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
                 interval={0}
                 angle={-20}
                 textAnchor="end"
               />
-              <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />
+              <Legend wrapperStyle={{ fontSize: '11px', color: '#475569' }} />
               {series_keys.map((key, i) => (
                 <Bar
                   key={key}
@@ -146,29 +143,30 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
           {type === 'area' && (
             <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
               <defs>
-                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.6} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.0} />
+                <linearGradient id="areaGradientLight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#059669" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#059669" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="bin"
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 10 }}
+                tick={{ fill: '#64748b', fontSize: 10 }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
                 interval={0}
                 angle={-25}
                 textAnchor="end"
               />
-              <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Area
                 type="monotone"
                 dataKey="count"
-                stroke="#8b5cf6"
+                stroke="#059669"
                 strokeWidth={2}
                 fillOpacity={1}
-                fill="url(#areaGradient)"
+                fill="url(#areaGradientLight)"
                 name="Frequency"
               />
             </AreaChart>
@@ -181,7 +179,7 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
               <Legend
                 verticalAlign="bottom"
                 height={36}
-                wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }}
+                wrapperStyle={{ fontSize: '11px', color: '#475569' }}
               />
               <Pie
                 data={data}
@@ -203,21 +201,23 @@ function ChartCard({ chart, isExpanded, onToggleExpand }) {
           {/* 5. Scatter Plot */}
           {type === 'scatter' && (
             <ScatterChart margin={{ top: 10, right: 20, left: -10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
               <XAxis
                 dataKey="x"
                 name={chart.x_col}
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 10 }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
               />
               <YAxis
                 dataKey="y"
                 name={chart.y_col}
-                stroke="#64748b"
-                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 10 }}
+                axisLine={{ stroke: '#e2e8f0' }}
+                tickLine={false}
               />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} content={<CustomTooltip />} />
-              <Scatter name="Data Points" data={data} fill="#06b6d4" />
+              <Scatter name="Data Points" data={data} fill="#059669" />
             </ScatterChart>
           )}
         </ResponsiveContainer>
@@ -231,9 +231,9 @@ export default function RecommendedChartsGallery({ recommendations = [] }) {
 
   if (!recommendations.length) {
     return (
-      <div className="rounded-2xl glass-panel border border-slate-800 bg-slate-900/40 p-12 text-center space-y-2">
-        <Sparkles className="w-8 h-8 text-slate-500 mx-auto" />
-        <p className="text-sm font-semibold text-slate-300">No Recommended Visuals Available</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-12 text-center space-y-2 shadow-2xs">
+        <Sparkles className="w-8 h-8 text-slate-400 mx-auto" />
+        <p className="text-sm font-bold text-slate-800">No Recommended Visuals Available</p>
         <p className="text-xs text-slate-500">
           Try uploading a dataset with a mix of categorical and numerical columns.
         </p>
@@ -243,9 +243,9 @@ export default function RecommendedChartsGallery({ recommendations = [] }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-        <span>{recommendations.length} visuals automatically generated from schema discovery.</span>
-        <span className="font-mono text-[11px] text-cyan-400">Recharts 2.x Engine</span>
+      <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+        <span>{recommendations.length} visuals automatically discovered from schema and cardinality.</span>
+        <span className="font-mono text-[11px] text-emerald-700 font-semibold">Recharts Engine</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

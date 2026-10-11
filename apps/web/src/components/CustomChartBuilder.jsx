@@ -18,39 +18,39 @@ import {
 } from 'recharts'
 import {
   SlidersHorizontal,
-  BarChart2,
-  TrendingUp,
-  PieChart as PieIcon,
-  Activity,
   Play,
   Loader2,
   AlertCircle,
   Table as TableIcon,
-  RefreshCw,
+  Activity,
 } from 'lucide-react'
 import { datasetsApi } from '../services/api'
 
 const PALETTE = [
-  '#6366f1', '#06b6d4', '#10b981', '#f59e0b',
-  '#8b5cf6', '#ec4899', '#3b82f6', '#14b8a6',
+  '#059669', // Emerald (Primary Brand)
+  '#475569', // Slate (Secondary Dimension)
+  '#0f766e', // Deep Teal (Tertiary Category)
+  '#0284c7', // Muted Ocean (Comparative Series)
+  '#d97706', // Warm Ochre (Accent / Highlight)
+  '#4f46e5', // Soft Indigo (Supplementary)
 ]
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null
 
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900/95 p-3 shadow-xl backdrop-blur-md text-xs space-y-1">
-      {label && <p className="font-bold text-slate-200 border-b border-slate-800 pb-1">{label}</p>}
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xl text-xs space-y-1 z-50 text-slate-800">
+      {label && <p className="font-bold text-slate-900 border-b border-slate-100 pb-1">{label}</p>}
       {payload.map((entry, idx) => (
         <div key={idx} className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-1.5">
             <span
               className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: entry.color || entry.fill || '#6366f1' }}
+              style={{ backgroundColor: entry.color || entry.fill || '#059669' }}
             />
-            <span className="text-slate-400 capitalize">{entry.name}:</span>
+            <span className="text-slate-500 capitalize">{entry.name}:</span>
           </div>
-          <span className="font-mono font-bold text-slate-100">
+          <span className="font-mono font-bold text-slate-900">
             {typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
           </span>
         </div>
@@ -120,27 +120,27 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
   return (
     <div className="space-y-6">
       {/* Control Panel */}
-      <div className="p-5 rounded-2xl glass-panel border border-slate-800 bg-slate-900/60 space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-800 flex-wrap gap-2">
+      <div className="p-5 rounded-xl border border-slate-200/90 bg-white shadow-2xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-sm font-bold text-slate-100">Visual Query Studio</h3>
+            <SlidersHorizontal className="w-4 h-4 text-emerald-700" />
+            <h3 className="text-xs sm:text-sm font-bold text-slate-900">Dynamic Visual Query Builder</h3>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowDataTable((s) => !s)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs transition cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer shadow-2xs"
             >
               <TableIcon className="w-3.5 h-3.5" />
-              {showDataTable ? 'Show Visual' : 'View Raw Data'}
+              {showDataTable ? 'Show Visual' : 'View Data Grid'}
             </button>
             <button
               onClick={executeQuery}
               disabled={loading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5 fill-white" />}
-              Update Chart
+              Execute Query
             </button>
           </div>
         </div>
@@ -149,13 +149,13 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {/* 1. Chart Type */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Visual Style
             </label>
             <select
               value={chartType}
               onChange={(e) => setChartType(e.target.value)}
-              className="w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition"
+              className="w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-medium"
             >
               <option value="bar">Bar Chart</option>
               <option value="line">Line Chart</option>
@@ -166,13 +166,13 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
           {/* 2. X-Axis */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               X-Axis (Dimension)
             </label>
             <select
               value={xCol}
               onChange={(e) => setXCol(e.target.value)}
-              className="w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition font-mono"
+              className="w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-mono font-medium"
             >
               {allColumns.map((col) => (
                 <option key={col} value={col}>{col}</option>
@@ -182,13 +182,13 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
           {/* 3. Aggregation Function */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Metric Aggregation
             </label>
             <select
               value={aggFunc}
               onChange={(e) => setAggFunc(e.target.value)}
-              className="w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition"
+              className="w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-medium"
             >
               <option value="sum">Sum</option>
               <option value="mean">Average (Mean)</option>
@@ -201,14 +201,14 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
           {/* 4. Y-Axis */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Y-Axis (Metric)
             </label>
             <select
               value={yCol}
               disabled={aggFunc === 'count'}
               onChange={(e) => setYCol(e.target.value)}
-              className={`w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition font-mono ${
+              className={`w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-mono font-medium ${
                 aggFunc === 'count' ? 'opacity-40 cursor-not-allowed' : ''
               }`}
             >
@@ -218,15 +218,15 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
             </select>
           </div>
 
-          {/* 5. Group-By (Series) */}
+          {/* 5. Group-By */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
               Group-By (Pivot)
             </label>
             <select
               value={groupByCol}
               onChange={(e) => setGroupByCol(e.target.value)}
-              className="w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition font-mono"
+              className="w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-mono font-medium"
             >
               <option value="none">None (Single Series)</option>
               {catColumns.filter((c) => c !== xCol).map((col) => (
@@ -237,13 +237,13 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
           {/* 6. Limit */}
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-              Max Items
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+              Max Rows
             </label>
             <select
               value={limit}
               onChange={(e) => setLimit(Number(e.target.value))}
-              className="w-full text-xs rounded-xl bg-slate-800/80 border border-slate-700/80 text-slate-200 px-3 py-2 outline-none focus:border-indigo-500 transition"
+              className="w-full text-xs rounded-lg bg-slate-50 border border-slate-200 text-slate-800 px-3 py-2 outline-none focus:border-emerald-500 transition font-medium"
             >
               <option value="10">Top 10</option>
               <option value="15">Top 15</option>
@@ -256,36 +256,36 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
       {/* Error alert */}
       {error && (
-        <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-300">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Visual Canvas Panel */}
-      <div className="p-6 rounded-2xl glass-panel border border-slate-800 bg-slate-900/60 min-h-[420px] flex flex-col justify-between">
+      <div className="p-6 rounded-xl border border-slate-200/90 bg-white min-h-[420px] flex flex-col justify-between shadow-2xs">
         {/* Visual Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-200">
+            <span className="font-bold text-slate-900">
               {aggFunc.toUpperCase()}({aggFunc === 'count' ? '*' : yCol}) by {xCol}
             </span>
             {groupByCol !== 'none' && (
-              <span className="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full font-mono">
-                Pivoted across {groupByCol}
+              <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-mono font-semibold">
+                Pivot: {groupByCol}
               </span>
             )}
           </div>
           <span className="text-slate-500 font-mono text-[11px]">
-            {data.length} data point{data.length !== 1 ? 's' : ''}
+            {data.length} observations
           </span>
         </div>
 
         {/* Loading Spinner */}
         {loading && (
           <div className="h-[340px] flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-            <p className="text-xs text-slate-400">Computing Dynamic Aggregations via Pandas…</p>
+            <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+            <p className="text-xs text-slate-500">Computing Dynamic Aggregations via Pandas Engine…</p>
           </div>
         )}
 
@@ -294,7 +294,7 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
           <div className="h-[340px] overflow-auto py-2">
             <table className="text-xs min-w-full">
               <thead>
-                <tr className="border-b border-slate-700 text-slate-400 bg-slate-800/40">
+                <tr className="border-b border-slate-200 text-slate-600 bg-slate-50">
                   <th className="px-4 py-2 text-left font-bold">{xCol}</th>
                   {seriesKeys.map((key) => (
                     <th key={key} className="px-4 py-2 text-right font-bold font-mono">
@@ -303,12 +303,12 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
                   ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {data.map((row, idx) => (
-                  <tr key={idx} className="border-b border-slate-800/60 hover:bg-slate-800/30">
-                    <td className="px-4 py-2 font-semibold text-slate-200">{row.name}</td>
+                  <tr key={idx} className="hover:bg-slate-50/70">
+                    <td className="px-4 py-2 font-semibold text-slate-900">{row.name}</td>
                     {seriesKeys.map((key) => (
-                      <td key={key} className="px-4 py-2 text-right font-mono text-slate-300">
+                      <td key={key} className="px-4 py-2 text-right font-mono text-slate-700">
                         {typeof row[key] === 'number' ? row[key].toLocaleString() : row[key]}
                       </td>
                     ))}
@@ -325,18 +325,19 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
             <ResponsiveContainer width="100%" height="100%">
               {chartType === 'bar' && (
                 <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis
                     dataKey="name"
-                    stroke="#64748b"
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                    tickLine={false}
                     interval={0}
                     angle={data.length > 6 ? -25 : 0}
                     textAnchor={data.length > 6 ? 'end' : 'middle'}
                   />
-                  <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  {seriesKeys.length > 1 && <Legend wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />}
+                  {seriesKeys.length > 1 && <Legend wrapperStyle={{ fontSize: '11px', color: '#475569' }} />}
                   {seriesKeys.map((key, i) => (
                     <Bar
                       key={key}
@@ -351,18 +352,19 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
 
               {chartType === 'line' && (
                 <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 30 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis
                     dataKey="name"
-                    stroke="#64748b"
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                    tickLine={false}
                     interval={0}
                     angle={data.length > 6 ? -25 : 0}
                     textAnchor={data.length > 6 ? 'end' : 'middle'}
                   />
-                  <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  {seriesKeys.length > 1 && <Legend wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }} />}
+                  {seriesKeys.length > 1 && <Legend wrapperStyle={{ fontSize: '11px', color: '#475569' }} />}
                   {seriesKeys.map((key, i) => (
                     <Line
                       key={key}
@@ -380,21 +382,22 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
               {chartType === 'area' && (
                 <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 30 }}>
                   <defs>
-                    <linearGradient id="customAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.6} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                    <linearGradient id="customAreaGradLight" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#059669" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.4} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis
                     dataKey="name"
-                    stroke="#64748b"
-                    tick={{ fill: '#94a3b8', fontSize: 11 }}
+                    tick={{ fill: '#64748b', fontSize: 10 }}
+                    axisLine={{ stroke: '#e2e8f0' }}
+                    tickLine={false}
                     interval={0}
                     angle={data.length > 6 ? -25 : 0}
                     textAnchor={data.length > 6 ? 'end' : 'middle'}
                   />
-                  <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 10 }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} />
                   {seriesKeys.map((key, i) => (
                     <Area
@@ -404,7 +407,7 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
                       stroke={PALETTE[i % PALETTE.length]}
                       strokeWidth={2}
                       fillOpacity={1}
-                      fill="url(#customAreaGrad)"
+                      fill="url(#customAreaGradLight)"
                       name={key}
                     />
                   ))}
@@ -417,7 +420,7 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
                   <Legend
                     verticalAlign="bottom"
                     height={36}
-                    wrapperStyle={{ fontSize: '11px', color: '#94a3b8' }}
+                    wrapperStyle={{ fontSize: '11px', color: '#475569' }}
                   />
                   <Pie
                     data={data}
@@ -440,8 +443,8 @@ export default function CustomChartBuilder({ dataset, schemaInfo }) {
         )}
 
         {!loading && !data.length && (
-          <div className="h-[340px] flex flex-col items-center justify-center gap-2 text-slate-500 text-xs">
-            <Activity className="w-8 h-8 text-slate-600" />
+          <div className="h-[340px] flex flex-col items-center justify-center gap-2 text-slate-400 text-xs">
+            <Activity className="w-8 h-8 text-slate-300" />
             <p>No records matched the selected query parameters.</p>
           </div>
         )}

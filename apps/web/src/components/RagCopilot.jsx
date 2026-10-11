@@ -19,7 +19,6 @@ import {
   ArrowRight,
   Sliders,
   Flame,
-  Info,
   TrendingUp,
   Wand2,
   BrainCircuit,
@@ -43,12 +42,12 @@ function MarkdownLine({ text }) {
       parts.push(<span key={i++}>{remaining.slice(lastIndex, match.index)}</span>)
     }
     if (match[2] !== undefined) {
-      parts.push(<strong key={i++} className="font-semibold text-white">{match[2]}</strong>)
+      parts.push(<strong key={i++} className="font-bold text-slate-900">{match[2]}</strong>)
     } else if (match[3] !== undefined) {
-      parts.push(<em key={i++} className="italic text-slate-300">{match[3]}</em>)
+      parts.push(<em key={i++} className="italic text-slate-700">{match[3]}</em>)
     } else if (match[4] !== undefined) {
       parts.push(
-        <code key={i++} className="bg-slate-950/80 text-cyan-300 rounded px-1.5 py-0.5 text-[10.5px] font-mono border border-slate-700/60">
+        <code key={i++} className="bg-slate-100 text-emerald-800 rounded px-1.5 py-0.5 text-[11px] font-mono border border-slate-200 font-semibold">
           {match[4]}
         </code>
       )
@@ -72,7 +71,7 @@ function MarkdownBody({ text }) {
 
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={key++} className="text-sm font-bold text-white mt-4 mb-2 first:mt-0 flex items-center gap-1.5">
+        <h3 key={key++} className="text-xs sm:text-sm font-bold text-slate-900 mt-3.5 mb-1.5 first:mt-0 flex items-center gap-1.5">
           <MarkdownLine text={line.slice(4)} />
         </h3>
       )
@@ -80,7 +79,7 @@ function MarkdownBody({ text }) {
     }
     if (line.startsWith('#### ')) {
       elements.push(
-        <h4 key={key++} className="text-xs font-semibold text-indigo-300 mt-3 mb-1.5">
+        <h4 key={key++} className="text-xs font-bold text-slate-800 mt-2.5 mb-1">
           <MarkdownLine text={line.slice(5)} />
         </h4>
       )
@@ -88,24 +87,24 @@ function MarkdownBody({ text }) {
     }
     if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={key++} className="text-sm font-bold text-white mt-4 mb-2">
+        <h2 key={key++} className="text-sm font-bold text-slate-900 mt-3.5 mb-1.5">
           <MarkdownLine text={line.slice(3)} />
         </h2>
       )
       continue
     }
     if (/^---+$/.test(line.trim())) {
-      elements.push(<hr key={key++} className="border-white/10 my-2.5" />)
+      elements.push(<hr key={key++} className="border-slate-200 my-2" />)
       continue
     }
 
-    const bm = line.match(/^(\s*)([•\-]|\*(?!\*))\s+(.+)/)
+    const bm = line.match(/^(\s*)([•-]|\*(?!\*))\s+(.+)/)
     if (bm) {
       const isIndented = bm[1].length > 0
       elements.push(
         <div key={key++} className={`flex items-start gap-2 my-1 ${isIndented ? 'ml-4' : 'ml-1'}`}>
-          <span className="text-indigo-400 mt-0.5 shrink-0 text-xs">•</span>
-          <span className="text-slate-200 leading-relaxed text-[11px] flex-1">
+          <span className="text-emerald-600 mt-0.5 shrink-0 text-xs font-bold">•</span>
+          <span className="text-slate-700 leading-relaxed text-xs flex-1">
             <MarkdownLine text={bm[3]} />
           </span>
         </div>
@@ -117,8 +116,8 @@ function MarkdownBody({ text }) {
     if (nm) {
       elements.push(
         <div key={key++} className="flex items-start gap-2 my-1 ml-1">
-          <span className="text-indigo-400 font-bold shrink-0 text-[11px] mt-0.5">{nm[2]}.</span>
-          <span className="text-slate-200 leading-relaxed text-[11px] flex-1">
+          <span className="text-emerald-700 font-bold shrink-0 text-xs mt-0.5">{nm[2]}.</span>
+          <span className="text-slate-700 leading-relaxed text-xs flex-1">
             <MarkdownLine text={nm[3]} />
           </span>
         </div>
@@ -132,7 +131,7 @@ function MarkdownBody({ text }) {
     }
 
     elements.push(
-      <p key={key++} className="text-[11px] leading-relaxed text-slate-200 my-1">
+      <p key={key++} className="text-xs leading-relaxed text-slate-700 my-1">
         <MarkdownLine text={line} />
       </p>
     )
@@ -144,19 +143,19 @@ function MarkdownBody({ text }) {
 function SourceBadge({ source }) {
   if (!source) return null
   const map = {
-    'llm + rag': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    'computed-truth + rag': 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
-    'advisory-engine + rag': 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-    'business-strategy + rag': 'bg-green-500/20 text-green-300 border-green-500/30',
-    'cleaning-advisor + rag': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    'ml-advisor + rag': 'bg-violet-500/20 text-violet-300 border-violet-500/30',
-    'eda-hypotheses + rag': 'bg-pink-500/20 text-pink-300 border-pink-500/30',
-    'executive-summary + rag': 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
-    'conversational-synthesis + rag': 'bg-slate-500/20 text-slate-300 border-slate-500/30',
+    'llm + rag': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    'computed-truth + rag': 'bg-sky-50 text-sky-800 border-sky-200',
+    'advisory-engine + rag': 'bg-amber-50 text-amber-800 border-amber-200',
+    'business-strategy + rag': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    'cleaning-advisor + rag': 'bg-sky-50 text-sky-800 border-sky-200',
+    'ml-advisor + rag': 'bg-purple-50 text-purple-800 border-purple-200',
+    'eda-hypotheses + rag': 'bg-rose-50 text-rose-800 border-rose-200',
+    'executive-summary + rag': 'bg-slate-100 text-slate-800 border-slate-200',
+    'conversational-synthesis + rag': 'bg-slate-100 text-slate-700 border-slate-200',
   }
-  const cls = map[source] || 'bg-slate-500/15 text-slate-400 border-slate-600/30'
+  const cls = map[source] || 'bg-slate-100 text-slate-700 border-slate-200'
   return (
-    <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border uppercase tracking-wider font-semibold ${cls}`}>
+    <span className={`text-[9px] font-mono px-2 py-0.5 rounded-full border uppercase tracking-wider font-bold ${cls}`}>
       {source.replace(' + rag', '')}
     </span>
   )
@@ -193,7 +192,7 @@ export default function RagCopilot({ dataset }) {
   const SUGGESTION_GROUPS = [
     {
       label: 'Improvements',
-      icon: <Wand2 className="w-3 h-3 text-emerald-400" />,
+      icon: <Wand2 className="w-3 h-3 text-emerald-600" />,
       questions: [
         'What suggestions and improvements do you recommend for this dataset?',
         'How can I improve data quality and prepare it for modeling?',
@@ -202,7 +201,7 @@ export default function RagCopilot({ dataset }) {
     },
     {
       label: 'Business',
-      icon: <TrendingUp className="w-3 h-3 text-blue-400" />,
+      icon: <TrendingUp className="w-3 h-3 text-sky-600" />,
       questions: [
         'What business strategy should I follow based on this data?',
         'How can we increase revenue and optimize performance?',
@@ -211,7 +210,7 @@ export default function RagCopilot({ dataset }) {
     },
     {
       label: 'Insights',
-      icon: <Lightbulb className="w-3 h-3 text-amber-400" />,
+      icon: <Lightbulb className="w-3 h-3 text-amber-600" />,
       questions: [
         'Give me an executive summary of this dataset.',
         'What are the key takeaways and strongest trends?',
@@ -220,7 +219,7 @@ export default function RagCopilot({ dataset }) {
     },
     {
       label: 'ML Readiness',
-      icon: <BrainCircuit className="w-3 h-3 text-violet-400" />,
+      icon: <BrainCircuit className="w-3 h-3 text-purple-600" />,
       questions: [
         'Can I train a machine learning model on this data?',
         'What features should I engineer for a predictive model?',
@@ -229,7 +228,7 @@ export default function RagCopilot({ dataset }) {
     },
     {
       label: 'EDA',
-      icon: <BarChart3 className="w-3 h-3 text-pink-400" />,
+      icon: <BarChart3 className="w-3 h-3 text-rose-600" />,
       questions: [
         'What visualizations and charts should I explore first?',
         'Suggest data exploration hypotheses I should test.',
@@ -238,7 +237,7 @@ export default function RagCopilot({ dataset }) {
     },
     {
       label: 'Stats',
-      icon: <Target className="w-3 h-3 text-cyan-400" />,
+      icon: <Target className="w-3 h-3 text-emerald-600" />,
       questions: [
         `What is the average, min, and max for ${firstNum}?`,
         numCols.length >= 2
@@ -292,7 +291,7 @@ export default function RagCopilot({ dataset }) {
             role: 'assistant',
             isSystem: true,
             timestamp: new Date().toLocaleTimeString(),
-            text: `Vector index ready! Embedded **${count} knowledge chunks** into ChromaDB with 384-dimensional dense semantic vectors.\n\nYou can now ask **any question in natural language** — suggestions, data improvements, business strategy, machine learning readiness, statistical queries, or exploratory hypotheses!`,
+            text: `Vector knowledge base successfully initialized! Embedded **${count} knowledge chunks** into ChromaDB with 384-dimensional dense semantic vectors.\n\nYou can now ask **any question in natural language** — suggestions, data improvements, business strategy, machine learning readiness, statistical queries, or exploratory hypotheses.`,
           },
         ])
       } else {
@@ -364,57 +363,57 @@ export default function RagCopilot({ dataset }) {
   return (
     <div className="space-y-5">
       {/* Index card */}
-      <div className="p-5 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-40 bg-gradient-to-bl from-indigo-500/10 via-purple-500/5 to-transparent rounded-full blur-2xl pointer-events-none" />
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25 shrink-0">
-              <Bot className="w-5 h-5 text-white" />
+      <div className="p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+              <Bot className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-sm font-bold text-white">RAG Analytics Copilot</h2>
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider">
-                  Phase 6
+                <h2 className="text-sm font-bold text-slate-900">AI Data Analytics Copilot</h2>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-wider">
+                  RAG Assistant
                 </span>
-                <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-                  <CheckCircle2 className="w-2.5 h-2.5" /> Conversational Advisory AI
+                <span className="text-[9px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                  <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" /> Grounded in Pandas Truth
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1 max-w-2xl leading-relaxed">
-                Ask <strong className="text-slate-300">any natural-language question</strong> — suggestions, improvements, business advice, ML modeling, data quality, or exact column statistics.
+              <p className="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
+                Ask natural-language questions regarding dataset improvements, business strategies, ML modeling readiness, or exact column statistics.
               </p>
             </div>
           </div>
+
           <div className="flex items-center gap-3 self-start md:self-auto shrink-0">
             {isCheckingStatus ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs text-slate-400">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
-                <span>Checking Status...</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                <span>Checking Vector Status...</span>
               </div>
             ) : isIndexed ? (
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-emerald-400">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <div className="flex items-center justify-end gap-1.5 text-xs font-semibold text-emerald-700">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
                     <span>Vector Index Ready</span>
                   </div>
-                  <div className="text-[11px] text-slate-400 font-mono">{chunkCount} chunks indexed</div>
+                  <div className="text-[11px] text-slate-500 font-mono">{chunkCount} chunks indexed</div>
                 </div>
                 <button
                   onClick={handleIndexDataset}
                   disabled={isIndexing}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isIndexing ? 'animate-spin text-indigo-400' : ''}`} />
-                  <span>{isIndexing ? 'Re-indexing...' : 'Refresh'}</span>
+                  <RefreshCw className={`w-3.5 h-3.5 ${isIndexing ? 'animate-spin text-emerald-600' : ''}`} />
+                  <span>{isIndexing ? 'Re-indexing...' : 'Refresh Index'}</span>
                 </button>
               </div>
             ) : (
               <button
                 onClick={handleIndexDataset}
                 disabled={isIndexing}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 transition cursor-pointer flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer flex items-center gap-2 disabled:opacity-50"
               >
                 <Zap className={`w-4 h-4 ${isIndexing ? 'animate-spin' : ''}`} />
                 <span>{isIndexing ? 'Building Vector Store...' : 'Index Dataset Now'}</span>
@@ -422,25 +421,27 @@ export default function RagCopilot({ dataset }) {
             )}
           </div>
         </div>
+
         {indexError && (
-          <div className="mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 text-xs text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="mt-3 p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
             <span>{indexError}</span>
           </div>
         )}
+
         {indexStats?.chunk_types && (
-          <div className="mt-4 pt-3 border-t border-white/5 flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
-            <span className="font-semibold text-slate-300 flex items-center gap-1">
-              <Layers className="w-3.5 h-3.5 text-indigo-400" />
-              Indexed Chunks:
+          <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2.5 text-[11px] text-slate-500">
+            <span className="font-semibold text-slate-700 flex items-center gap-1">
+              <Layers className="w-3.5 h-3.5 text-emerald-600" />
+              Indexed Documents:
             </span>
             {[
-              ['Overview', indexStats.chunk_types.overview || 1, 'text-indigo-300'],
-              ['Columns', indexStats.chunk_types.columns || 0, 'text-purple-300'],
-              ['Correlations', indexStats.chunk_types.correlations || 0, 'text-cyan-300'],
-              ['Aggregations', indexStats.chunk_types.aggregations || 0, 'text-amber-300'],
+              ['Overview', indexStats.chunk_types.overview || 1],
+              ['Columns', indexStats.chunk_types.columns || 0],
+              ['Correlations', indexStats.chunk_types.correlations || 0],
+              ['Aggregations', indexStats.chunk_types.aggregations || 0],
             ].map(([k, v]) => (
-              <span key={k} className="px-2 py-0.5 rounded bg-slate-800/80 border border-slate-700/60 font-mono text-slate-300">
+              <span key={k} className="px-2 py-0.5 rounded bg-slate-50 border border-slate-200 font-mono text-slate-700 font-medium">
                 {k}: {v}
               </span>
             ))}
@@ -451,25 +452,25 @@ export default function RagCopilot({ dataset }) {
       {/* Chat + sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
         {/* Chat panel */}
-        <div className="lg:col-span-3 flex flex-col h-[680px] rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 shadow-xl overflow-hidden">
-          <div className="px-5 py-3 border-b border-white/5 bg-slate-900/40 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <MessageSquare className="w-4 h-4 text-indigo-400" />
-              <span>Conversation</span>
+        <div className="lg:col-span-3 flex flex-col h-[660px] rounded-xl bg-white border border-slate-200/90 shadow-2xs overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+              <MessageSquare className="w-4 h-4 text-emerald-600" />
+              <span>Conversational Workspace</span>
               {messages.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[10px] font-mono text-slate-400">
-                  {messages.filter((m) => m.role === 'user').length} questions
+                <span className="px-2 py-0.5 rounded-full bg-slate-200 text-[10px] font-mono text-slate-700 font-bold">
+                  {messages.filter((m) => m.role === 'user').length} queries
                 </span>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+              <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
                 <Sliders className="w-3 h-3 text-slate-500" />
                 <span>Chunks:</span>
                 <select
                   value={topK}
                   onChange={(e) => setTopK(Number(e.target.value))}
-                  className="bg-slate-800 border border-slate-700 rounded px-1.5 py-0.5 text-[11px] text-slate-200 outline-none"
+                  className="bg-white border border-slate-200 rounded px-1.5 py-0.5 text-xs text-slate-800 outline-none focus:border-emerald-500 font-medium"
                 >
                   <option value={2}>2</option>
                   <option value={4}>4</option>
@@ -480,7 +481,7 @@ export default function RagCopilot({ dataset }) {
               {messages.length > 0 && (
                 <button
                   onClick={() => setMessages([])}
-                  className="text-[11px] text-slate-500 hover:text-slate-300 transition cursor-pointer"
+                  className="text-xs text-slate-500 hover:text-slate-800 transition cursor-pointer font-medium"
                 >
                   Clear Chat
                 </button>
@@ -488,25 +489,25 @@ export default function RagCopilot({ dataset }) {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30">
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shadow-inner">
-                  <Bot className="w-8 h-8" />
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3.5">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shadow-2xs">
+                  <Bot className="w-7 h-7" />
                 </div>
                 <div className="max-w-md">
-                  <h3 className="text-sm font-bold text-white">Ask Anything About Your Data</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <h3 className="text-sm font-bold text-slate-900">Explore Insights in Natural Language</h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                     {!isIndexed
                       ? 'Click "Index Dataset Now" above to embed your data into the ChromaDB vector knowledge base.'
-                      : 'Ask questions naturally: suggestions, improvements, business advice, ML models, hypotheses, or click any prompt on the right.'}
+                      : 'Ask questions freely or select any prompt chip from the panel on the right.'}
                   </p>
                 </div>
                 {!isIndexed && (
                   <button
                     onClick={handleIndexDataset}
                     disabled={isIndexing}
-                    className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-2"
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs flex items-center gap-2"
                   >
                     <Zap className="w-4 h-4" />
                     <span>{isIndexing ? 'Indexing...' : 'Index Dataset to Start'}</span>
@@ -520,19 +521,19 @@ export default function RagCopilot({ dataset }) {
                   className={`flex flex-col space-y-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                 >
                   <div
-                    className={`rounded-2xl px-4 py-3 max-w-[90%] md:max-w-[85%] ${
+                    className={`rounded-xl px-4 py-3 max-w-[90%] md:max-w-[85%] ${
                       msg.role === 'user'
-                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                        ? 'bg-emerald-600 text-white shadow-2xs'
                         : msg.isError
-                        ? 'bg-rose-500/10 border border-rose-500/30 text-rose-200'
-                        : 'bg-slate-800/70 border border-slate-700/60 text-slate-100 shadow-md'
+                        ? 'bg-rose-50 border border-rose-200 text-rose-800'
+                        : 'bg-white border border-slate-200/90 text-slate-800 shadow-2xs'
                     }`}
                   >
                     {msg.role === 'assistant' && !msg.isSystem && (
-                      <div className="flex items-center justify-between gap-3 mb-3 pb-2.5 border-b border-white/5">
+                      <div className="flex items-center justify-between gap-3 mb-2.5 pb-2 border-b border-slate-100">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-[11px] text-indigo-400 flex items-center gap-1">
-                            <Bot className="w-3.5 h-3.5" /> Copilot
+                          <span className="font-bold text-[11px] text-emerald-700 flex items-center gap-1">
+                            <Bot className="w-3.5 h-3.5" /> AI Assistant
                           </span>
                           <SourceBadge source={msg.answerSource} />
                         </div>
@@ -543,40 +544,40 @@ export default function RagCopilot({ dataset }) {
                             .map((it) => (
                               <span
                                 key={it}
-                                className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-900/60 text-slate-400 border border-slate-700 font-semibold"
+                                className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 font-semibold"
                               >
                                 {it}
                               </span>
                             ))}
                           <button
                             onClick={() => handleCopy(msg.id, msg.text)}
-                            className="text-slate-400 hover:text-white transition p-1 rounded hover:bg-slate-700/50"
+                            className="text-slate-400 hover:text-slate-700 transition p-1 rounded hover:bg-slate-100"
                             title="Copy response"
                           >
                             {copiedId === msg.id ? (
-                              <Check className="w-3 h-3 text-emerald-400" />
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
                             ) : (
-                              <Copy className="w-3 h-3" />
+                              <Copy className="w-3.5 h-3.5" />
                             )}
                           </button>
                         </div>
                       </div>
                     )}
                     {msg.role === 'user' ? (
-                      <p className="text-xs leading-relaxed font-medium">{msg.text}</p>
+                      <p className="text-xs leading-relaxed font-semibold">{msg.text}</p>
                     ) : (
                       <MarkdownBody text={msg.text} />
                     )}
                     {msg.retrievedChunks?.length > 0 && (
-                      <div className="mt-3 pt-2.5 border-t border-white/5">
+                      <div className="mt-3 pt-2.5 border-t border-slate-100">
                         <button
                           onClick={() => toggleSource(msg.id)}
-                          className="flex items-center gap-1.5 text-[11px] font-medium text-indigo-400 hover:text-indigo-300 transition cursor-pointer"
+                          className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 transition cursor-pointer"
                         >
                           <BookOpen className="w-3.5 h-3.5" />
                           <span>
                             {expandedSources[msg.id]
-                              ? 'Hide Evidence Chunks'
+                              ? 'Hide Context Chunks'
                               : `${msg.retrievedChunks.length} Retrieved Context Chunks`}
                           </span>
                           {expandedSources[msg.id] ? (
@@ -590,17 +591,17 @@ export default function RagCopilot({ dataset }) {
                             {msg.retrievedChunks.map((chunk, idx) => (
                               <div
                                 key={idx}
-                                className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-700/50 text-[11px] space-y-1"
+                                className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-1"
                               >
                                 <div className="flex items-center justify-between text-[10px]">
-                                  <span className="font-mono text-indigo-300">
+                                  <span className="font-mono text-emerald-800 font-semibold">
                                     #{idx + 1} {chunk.type}
                                   </span>
-                                  <span className="font-semibold text-emerald-400">
-                                    {Math.round((chunk.relevance_score || 0) * 100)}% match
+                                  <span className="font-semibold text-slate-500 font-mono">
+                                    {Math.round((chunk.relevance_score || 0) * 100)}% relevance
                                   </span>
                                 </div>
-                                <p className="text-slate-400 font-mono text-[10px] leading-relaxed italic">
+                                <p className="text-slate-600 font-mono text-[11px] leading-relaxed italic">
                                   "{chunk.text}"
                                 </p>
                               </div>
@@ -610,25 +611,25 @@ export default function RagCopilot({ dataset }) {
                       </div>
                     )}
                   </div>
-                  <span className="text-[10px] text-slate-500 px-2 font-mono">{msg.timestamp}</span>
+                  <span className="text-[10px] text-slate-400 px-2 font-mono">{msg.timestamp}</span>
                 </div>
               ))
             )}
             {isAsking && (
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                  <Bot className="w-4 h-4 text-indigo-400" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+                  <Bot className="w-4 h-4 text-emerald-600" />
                 </div>
-                <div className="flex items-center gap-2 text-xs text-indigo-300 px-4 py-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 text-indigo-400" />
-                  <span>Synthesizing natural language response...</span>
+                <div className="flex items-center gap-2 text-xs text-emerald-800 px-4 py-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin shrink-0 text-emerald-600" />
+                  <span>Retrieving knowledge chunks & synthesizing verified response...</span>
                 </div>
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <div className="p-3 border-t border-white/5 bg-slate-900/60">
+          <div className="p-3 border-t border-slate-100 bg-white">
             <form
               onSubmit={(e) => {
                 e.preventDefault()
@@ -646,12 +647,12 @@ export default function RagCopilot({ dataset }) {
                     : 'Index dataset above to start asking questions...'
                 }
                 disabled={!isIndexed || isAsking}
-                className="flex-1 bg-slate-800/80 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/40 transition disabled:opacity-50"
+                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-emerald-500 focus:bg-white transition disabled:opacity-50 font-medium"
               />
               <button
                 type="submit"
                 disabled={!isIndexed || !question.trim() || isAsking}
-                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold shadow-md transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Ask</span>
@@ -661,21 +662,21 @@ export default function RagCopilot({ dataset }) {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-5">
-          <div className="p-4 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 shadow-xl space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-white">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>Suggested Questions</span>
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <span>Suggested Queries</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {SUGGESTION_GROUPS.map((g) => (
                 <button
                   key={g.label}
                   onClick={() => setActiveSuggGroup(g.label)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold transition cursor-pointer border ${
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-semibold transition cursor-pointer border ${
                     activeSuggGroup === g.label
-                      ? 'bg-indigo-600/30 border-indigo-500/50 text-indigo-200'
-                      : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold'
+                      : 'bg-slate-50 border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
                   {g.icon}
@@ -692,44 +693,43 @@ export default function RagCopilot({ dataset }) {
                     else setQuestion(sug)
                   }}
                   disabled={isAsking}
-                  className="w-full text-left p-2.5 rounded-xl bg-slate-800/50 hover:bg-indigo-500/10 border border-slate-700/50 hover:border-indigo-500/30 text-[11px] text-slate-300 hover:text-indigo-200 transition cursor-pointer flex items-start gap-2 group disabled:opacity-50"
+                  className="w-full text-left p-2.5 rounded-lg bg-slate-50 hover:bg-emerald-50/60 border border-slate-200/80 hover:border-emerald-300 text-xs text-slate-700 hover:text-emerald-900 transition cursor-pointer flex items-start gap-2 group disabled:opacity-50 font-medium"
                 >
-                  <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-indigo-400 mt-0.5 shrink-0 transition" />
+                  <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-emerald-600 mt-0.5 shrink-0 transition" />
                   <span className="leading-snug">{sug}</span>
                 </button>
               ))}
               {activeSuggs.length === 0 && (
-                <p className="text-[11px] text-slate-500 italic">No suggestions for this category.</p>
+                <p className="text-xs text-slate-400 italic">No suggestions in this category.</p>
               )}
             </div>
           </div>
 
-          <div className="p-4 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 shadow-xl space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-white">
-              <Cpu className="w-4 h-4 text-indigo-400" />
+          <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+              <Cpu className="w-4 h-4 text-emerald-600" />
               <span>Engine Architecture</span>
             </div>
-            <div className="space-y-2 text-[11px] text-slate-400">
+            <div className="space-y-2 text-xs text-slate-600">
               {[
-                [<Database key="db" className="w-3 h-3 text-indigo-400" />, 'Vector DB', 'ChromaDB Local', 'text-slate-200'],
-                [<Flame key="flame" className="w-3 h-3 text-purple-400" />, 'Embeddings', 'MiniLM-L6-v2 (384d)', 'text-slate-200'],
-                [<Zap key="zap" className="w-3 h-3 text-emerald-400" />, 'Stats Engine', 'Pandas Ground Truth', 'text-emerald-400'],
-                [<Bot key="bot" className="w-3 h-3 text-amber-400" />, 'Advisory', 'Autonomous NLP Engine', 'text-amber-300'],
-                [<Info key="info" className="w-3 h-3 text-cyan-400" />, 'LLM Mode', 'Groq / OpenAI / Ollama', 'text-cyan-300'],
+                [<Database key="db" className="w-3 h-3 text-slate-500" />, 'Vector DB', 'ChromaDB Local', 'text-slate-900'],
+                [<Flame key="flame" className="w-3 h-3 text-slate-500" />, 'Embeddings', 'MiniLM-L6-v2 (384d)', 'text-slate-900'],
+                [<Zap key="zap" className="w-3 h-3 text-emerald-600" />, 'Statistical Truth', 'Pandas In-Memory', 'text-emerald-700 font-bold'],
+                [<Bot key="bot" className="w-3 h-3 text-slate-500" />, 'Advisory Engine', 'Autonomous NLP', 'text-slate-900'],
               ].map(([icon, label, value, vc]) => (
                 <div
                   key={label}
-                  className="flex items-center justify-between pb-1.5 border-b border-white/5 last:border-0 last:pb-0"
+                  className="flex items-center justify-between pb-1.5 border-b border-slate-100 last:border-0 last:pb-0"
                 >
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center gap-1.5 text-slate-500">
                     {icon}
                     {label}:
                   </span>
-                  <span className={`font-mono ${vc}`}>{value}</span>
+                  <span className={`font-mono text-[11px] ${vc}`}>{value}</span>
                 </div>
               ))}
             </div>
-            <p className="text-[10px] text-slate-500 italic leading-relaxed pt-1 border-t border-white/5">
+            <p className="text-[10px] text-slate-400 italic leading-relaxed pt-1 border-t border-slate-100">
               Calculations and recommendations are strictly grounded in your dataset facts.
             </p>
           </div>

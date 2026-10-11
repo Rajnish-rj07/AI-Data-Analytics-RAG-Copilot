@@ -16,12 +16,6 @@ import NumericalDistribution from './NumericalDistribution'
 import CategoricalBreakdown from './CategoricalBreakdown'
 import InsightsPanel from './InsightsPanel'
 
-const SEVERITY_ICON = {
-  success: <ShieldCheck className="w-4 h-4 text-emerald-400" />,
-  warning: <AlertTriangle className="w-4 h-4 text-amber-400" />,
-  info: <Info className="w-4 h-4 text-cyan-400" />,
-}
-
 export default function DeepProfileDashboard({ dataset }) {
   const [profile, setProfile] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -54,11 +48,11 @@ export default function DeepProfileDashboard({ dataset }) {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl glass-panel border border-slate-800 bg-slate-900/60 p-12 flex flex-col items-center justify-center gap-4 min-h-[260px]">
-        <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
+      <div className="rounded-xl border border-slate-200 bg-white p-12 flex flex-col items-center justify-center gap-4 min-h-[260px] shadow-xs">
+        <Loader2 className="w-9 h-9 text-emerald-600 animate-spin" />
         <div className="text-center">
-          <p className="text-sm font-semibold text-slate-200">Computing Deep Statistical Profile</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-sm font-bold text-slate-900">Computing Statistical Profile</p>
+          <p className="text-xs text-slate-500 mt-1">
             Pandas engine calculating correlations, distributions & outliers...
           </p>
         </div>
@@ -68,15 +62,17 @@ export default function DeepProfileDashboard({ dataset }) {
 
   if (error) {
     return (
-      <div className="rounded-2xl p-6 bg-red-500/5 border border-red-500/25 flex items-center gap-4">
-        <AlertCircle className="w-6 h-6 text-red-400 shrink-0" />
-        <div>
-          <p className="text-sm font-semibold text-red-300">Failed to Load Profile</p>
-          <p className="text-xs text-slate-400 mt-0.5">{error}</p>
+      <div className="rounded-xl p-5 bg-rose-50 border border-rose-200 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+          <div>
+            <p className="text-xs font-bold text-rose-800">Failed to Load Deep Profile</p>
+            <p className="text-xs text-rose-600 mt-0.5">{error}</p>
+          </div>
         </div>
         <button
           onClick={fetchProfile}
-          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-rose-300 hover:bg-rose-100/50 text-rose-700 text-xs font-semibold cursor-pointer transition shadow-2xs"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Retry
@@ -101,7 +97,7 @@ export default function DeepProfileDashboard({ dataset }) {
       {profile.insights?.length > 0 && <InsightsPanel insights={profile.insights} />}
 
       {/* Viz Tab Switcher */}
-      <div className="flex items-center gap-2 p-1 rounded-xl bg-slate-900/80 border border-slate-800 text-xs w-full sm:w-auto overflow-x-auto">
+      <div className="flex items-center gap-1.5 p-1 rounded-lg bg-slate-100 border border-slate-200 text-xs w-full sm:w-auto overflow-x-auto">
         {hasNumerical && (
           <TabBtn
             active={activeVizTab === 'distributions'}
@@ -148,17 +144,17 @@ export default function DeepProfileDashboard({ dataset }) {
 
 function QualityScoreBar({ score, insightCount }) {
   const scoreColor =
-    score >= 80 ? 'text-emerald-400' : score >= 60 ? 'text-amber-400' : 'text-red-400'
+    score >= 80 ? 'text-emerald-700' : score >= 60 ? 'text-amber-700' : 'text-rose-700'
   const barColor =
-    score >= 80 ? 'from-emerald-500 to-emerald-400' : score >= 60 ? 'from-amber-500 to-amber-400' : 'from-red-500 to-red-400'
+    score >= 80 ? 'bg-emerald-600' : score >= 60 ? 'bg-amber-500' : 'bg-rose-500'
   const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Fair' : 'Poor'
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-2xl glass-panel border border-slate-800 bg-slate-900/60">
-      <div className="flex items-center gap-3">
-        <div className="relative w-14 h-14 shrink-0">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+      <div className="flex items-center gap-3.5">
+        <div className="relative w-13 h-13 shrink-0">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 40 40">
-            <circle cx="20" cy="20" r="16" fill="none" stroke="#1e293b" strokeWidth="4" />
+            <circle cx="20" cy="20" r="16" fill="none" stroke="#e2e8f0" strokeWidth="4" />
             <circle
               cx="20"
               cy="20"
@@ -172,35 +168,35 @@ function QualityScoreBar({ score, insightCount }) {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className={`text-sm font-extrabold ${scoreColor}`}>{score}</span>
+            <span className={`text-xs font-black ${scoreColor}`}>{score}</span>
           </div>
         </div>
         <div>
-          <div className="text-sm font-bold text-slate-100">
+          <div className="text-sm font-bold text-slate-900">
             Data Quality Score: <span className={scoreColor}>{label}</span>
           </div>
-          <div className="text-xs text-slate-400 mt-0.5">
-            Calculated from missing values, duplicates, and outlier density.
+          <div className="text-xs text-slate-500 mt-0.5">
+            Calculated from missing cell density, duplicate rows, and outlier distributions.
           </div>
         </div>
       </div>
 
       <div className="flex-1 w-full sm:w-auto">
-        <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
           <div
-            className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-700`}
+            className={`h-full ${barColor} rounded-full transition-all duration-500`}
             style={{ width: `${score}%` }}
           />
         </div>
-        <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+        <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
           <span>0</span>
-          <span className="text-slate-400 font-medium">{score} / 100</span>
+          <span className="text-slate-600 font-semibold">{score} / 100</span>
           <span>100</span>
         </div>
       </div>
 
-      <div className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs whitespace-nowrap">
-        {insightCount} insight{insightCount !== 1 ? 's' : ''} found
+      <div className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold whitespace-nowrap">
+        {insightCount} insight{insightCount !== 1 ? 's' : ''} detected
       </div>
     </div>
   )
@@ -210,10 +206,10 @@ function TabBtn({ active, onClick, icon, label }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg font-medium transition cursor-pointer whitespace-nowrap ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold transition cursor-pointer text-xs whitespace-nowrap ${
         active
-          ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/30'
-          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+          ? 'bg-emerald-600 text-white shadow-2xs'
+          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
       }`}
     >
       {icon}

@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react'
-import { UploadCloud, ArrowUpRight, AlertCircle, Loader2, Sparkles } from 'lucide-react'
+import { UploadCloud, ArrowUpRight, AlertCircle, Loader2, Sparkles, FileText } from 'lucide-react'
 import { sampleDatasets, createSampleFile } from '../data/sampleDatasets'
-
 
 export default function FileUploadZone({ onUploadSuccess, isUploading, uploadProgress, uploadStage }) {
   const [isDragOver, setIsDragOver] = useState(false)
@@ -39,7 +38,7 @@ export default function FileUploadZone({ onUploadSuccess, isUploading, uploadPro
     setErrorMessage('')
     const ext = '.' + file.name.split('.').pop().toLowerCase()
     if (!['.csv', '.xlsx', '.xls'].includes(ext)) {
-      setErrorMessage(`Unsupported file format (${ext}). Please upload a .CSV or .XLSX file.`)
+      setErrorMessage(`Unsupported format (${ext}). Please upload a .CSV or .XLSX file.`)
       return
     }
 
@@ -58,16 +57,16 @@ export default function FileUploadZone({ onUploadSuccess, isUploading, uploadPro
 
   return (
     <div className="w-full space-y-6">
-      {/* Upload Drop Card */}
+      {/* Upload Drop Zone Card */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !isUploading && fileInputRef.current?.click()}
-        className={`relative group rounded-2xl p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer overflow-hidden border-2 ${
+        className={`relative group rounded-xl p-8 sm:p-10 text-center transition-all duration-200 cursor-pointer overflow-hidden border-2 ${
           isDragOver
-            ? 'border-indigo-500 bg-indigo-500/[0.08] shadow-[0_0_40px_rgba(99,102,241,0.25)] scale-[1.01]'
-            : 'border-dashed border-slate-700 hover:border-indigo-500/60 bg-slate-900/60 hover:bg-slate-900/90'
+            ? 'border-emerald-600 bg-emerald-50/50 scale-[1.005]'
+            : 'border-dashed border-slate-300 hover:border-emerald-600/80 bg-slate-50/60 hover:bg-white'
         }`}
       >
         <input
@@ -79,52 +78,52 @@ export default function FileUploadZone({ onUploadSuccess, isUploading, uploadPro
           disabled={isUploading}
         />
 
-        {/* Ambient background glow */}
-        <div className="absolute inset-0 -z-10 bg-radial from-indigo-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition duration-500" />
-
         {isUploading ? (
-          <div className="py-6 flex flex-col items-center justify-center space-y-4">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/30">
-                <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-              </div>
+          <div className="py-6 flex flex-col items-center justify-center space-y-3.5">
+            <div className="w-14 h-14 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-200 shadow-2xs">
+              <Loader2 className="w-7 h-7 text-emerald-600 animate-spin" />
             </div>
             <div>
-              <p className="text-base font-semibold text-slate-100">
+              <p className="text-sm font-bold text-slate-900">
                 {uploadStage || 'Processing Dataset...'}
               </p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-0.5">
                 FastAPI Profiling & MongoDB Persistence
               </p>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full max-w-xs bg-slate-800 rounded-full h-2 overflow-hidden mt-3 border border-slate-700/60">
+            {/* Progress Bar */}
+            <div className="w-full max-w-xs bg-slate-200 rounded-full h-2 overflow-hidden mt-2">
               <div
-                className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full transition-all duration-300"
+                className="bg-emerald-600 h-full transition-all duration-300"
                 style={{ width: `${uploadProgress || 65}%` }}
               />
             </div>
-            <span className="text-[11px] font-mono text-indigo-400">{uploadProgress}%</span>
+            <span className="text-[11px] font-mono font-semibold text-emerald-700">
+              {uploadProgress}%
+            </span>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 flex items-center justify-center border border-indigo-500/30 group-hover:scale-110 transition duration-300 shadow-lg shadow-indigo-500/10">
-              <UploadCloud className="w-8 h-8 text-indigo-400 group-hover:text-cyan-300 transition" />
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <div className="w-14 h-14 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center group-hover:border-emerald-400 group-hover:scale-105 transition duration-200">
+              <UploadCloud className="w-7 h-7 text-emerald-700" />
             </div>
 
             <div>
-              <p className="text-lg font-semibold text-slate-100 group-hover:text-white transition">
-                Drag & Drop your dataset here, or <span className="text-indigo-400 underline decoration-indigo-400/50 underline-offset-4">browse</span>
+              <p className="text-sm sm:text-base font-semibold text-slate-900">
+                Drag and drop your dataset here, or{' '}
+                <span className="text-emerald-700 underline underline-offset-4 decoration-emerald-300 hover:text-emerald-800">
+                  browse files
+                </span>
               </p>
-              <p className="text-xs text-slate-400 mt-1.5">
-                Supports <span className="font-semibold text-slate-300">CSV, Excel (.xlsx, .xls)</span> up to 50MB
+              <p className="text-xs text-slate-500 mt-1">
+                Supports <span className="font-semibold text-slate-700">CSV, Excel (.xlsx, .xls)</span> up to 50MB
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>Instant AI Column Typing & Statistical Profiling</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-200 text-[11px] text-slate-600 font-medium shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Automatic Pandas schema detection & statistical profiling</span>
             </div>
           </div>
         )}
@@ -132,42 +131,42 @@ export default function FileUploadZone({ onUploadSuccess, isUploading, uploadPro
 
       {/* Error alert if any */}
       {errorMessage && (
-        <div className="flex items-center gap-2 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      {/* 1-Click Sample Datasets */}
+      {/* 1-Click Sample Datasets for Fast Testing */}
       <div className="pt-2">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-              Or Try A Sample Dataset (1-Click Instant Test)
+            <FileText className="w-4 h-4 text-emerald-700" />
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+              Or Choose A Sample Dataset (Instant 1-Click Load)
             </h3>
           </div>
-          <span className="text-[11px] text-slate-500">Ready to profile</span>
+          <span className="text-[11px] text-slate-500 font-medium">Ready for live profiling</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {sampleDatasets.map((sample) => (
             <button
               key={sample.id}
               onClick={() => !isUploading && handleLoadSample(sample)}
               disabled={isUploading}
-              className="text-left p-3.5 rounded-xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800 hover:border-indigo-500/40 transition group cursor-pointer"
+              className="text-left p-3.5 rounded-xl bg-white hover:bg-slate-50/80 border border-slate-200/90 hover:border-emerald-300 transition duration-150 group cursor-pointer shadow-2xs hover:shadow-xs"
             >
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                   {sample.tag}
                 </span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition" />
               </div>
-              <h4 className="text-xs font-bold text-slate-200 group-hover:text-indigo-300 transition">
+              <h4 className="text-xs font-bold text-slate-900 group-hover:text-emerald-800 transition">
                 {sample.title}
               </h4>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+              <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                 {sample.description}
               </p>
             </button>

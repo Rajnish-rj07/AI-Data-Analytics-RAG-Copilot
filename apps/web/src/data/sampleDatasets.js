@@ -54,22 +54,32 @@ CUST-015,Enterprise,30,219.00,6570.00,Two-Year,1,48,No`,
     filename: 'sample_tech_workforce.csv',
     tag: 'HR & People Ops',
     iconColor: 'from-emerald-500 to-teal-600',
-    csv: `EmpID,Name,Department,Role,Experience_Years,Annual_Salary,Remote_Status,Performance_Score,Overtime
-EMP-101,Alex Morgan,Engineering,Senior Backend Engineer,6,138000,Full Remote,4.8,No
-EMP-102,Samantha Chen,Data Science,ML Engineer,4,125000,Hybrid,4.7,Yes
-EMP-103,Marcus Bell,Product,Product Manager,5,118000,On-Site,4.5,No
-EMP-104,Elena Rostova,Engineering,Frontend Lead,8,152000,Full Remote,4.9,No
-EMP-105,David Kim,Marketing,Growth Marketer,3,78000,Hybrid,4.1,No
-EMP-106,Aisha Patel,Data Science,Data Analyst,2,82000,Full Remote,4.6,No
-EMP-107,James Wilson,Sales,Account Executive,4,95000,On-Site,4.3,Yes
-EMP-108,Sophia Taylor,Engineering,DevOps Engineer,5,130000,Full Remote,4.8,No
-EMP-109,Carlos Ortiz,Design,UX Designer,3,86000,Hybrid,4.4,No
-EMP-110,Maya Lin,Product,Technical PM,7,142000,Full Remote,4.9,No
-EMP-111,Lucas Silva,Sales,Sales Engineer,4,105000,Hybrid,4.2,Yes
-EMP-112,Rachel Green,HR,People Operations Lead,6,98000,On-Site,4.6,No
-EMP-113,Omar Farooq,Engineering,Security Engineer,5,135000,Full Remote,4.7,No
-EMP-114,Hannah Abbott,Data Science,BI Developer,3,89000,Hybrid,4.4,No
-EMP-115,Vikram Singh,Engineering,Staff Architect,12,185000,Full Remote,5.0,No`,
+  },
+  {
+    id: 'sample-quality-issues',
+    title: 'E-Commerce with Data Quality Gaps',
+    description: '18 sales records containing missing regions, missing ratings, and duplicates for testing cleaning & hygiene.',
+    filename: 'sample_sales_with_issues.csv',
+    tag: 'Data Quality & Cleaning',
+    iconColor: 'from-amber-500 to-rose-600',
+    csv: `Transaction_ID,Customer_Name,Region,Product_Category,Units_Sold,Unit_Price,Discount,Total_Sales,Customer_Rating
+TXN-101,Alice Johnson,North,Electronics,2,450.00,0.05,855.00,4.8
+TXN-102,Bob Smith,South,Home Appliances,1,120.00,0.00,120.00,4.2
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-104,Diana Evans,,Furniture,3,210.00,0.15,535.50,4.5
+TXN-105,Evan Wright,West,Office Supplies,12,15.00,0.00,180.00,4.1
+TXN-106,Fiona Gallagher,North,Electronics,1,1200.00,0.05,1140.00,
+TXN-107,George Clark,South,Home Appliances,4,95.00,0.00,380.00,4.0
+TXN-108,Hannah Abbott,West,Office Supplies,,25.00,0.05,,3.8
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-109,Ian Malcolm,East,Electronics,2,600.00,0.10,1080.00,4.7
+TXN-110,Julia Roberts,North,Furniture,2,350.00,0.00,700.00,4.6
+TXN-111,Kevin Bacon,South,Electronics,45,450.00,0.20,16200.00,4.9
+TXN-112,Laura Croft,West,Home Appliances,2,180.00,,360.00,4.3
+TXN-113,Michael Scott,North,Office Supplies,8,12.50,0.00,100.00,3.5
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-114,Nina Simone,East,Furniture,1,850.00,0.05,807.50,4.9
+TXN-115,Oscar Isaac,South,Office Supplies,10,8.00,0.00,80.00,4.0`,
   },
 ]
 

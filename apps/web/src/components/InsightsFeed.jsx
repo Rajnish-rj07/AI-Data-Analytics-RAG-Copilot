@@ -5,7 +5,6 @@ import {
   PieChart as PieIcon,
   Zap,
   Activity,
-  ArrowUpRight,
   Filter,
   Check,
   Copy,
@@ -13,33 +12,33 @@ import {
 
 const CATEGORY_CONFIG = {
   Concentration: {
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
-    border: 'border-amber-500/25',
+    color: 'text-amber-700',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
     icon: PieIcon,
   },
   Correlation: {
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-500/10',
-    border: 'border-cyan-500/25',
+    color: 'text-sky-700',
+    bg: 'bg-sky-50',
+    border: 'border-sky-200',
     icon: TrendingUp,
   },
   Distribution: {
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/25',
+    color: 'text-purple-700',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
     icon: Activity,
   },
   'Value Driver': {
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/25',
+    color: 'text-emerald-700',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
     icon: Zap,
   },
   Volatility: {
-    color: 'text-rose-400',
-    bg: 'bg-rose-500/10',
-    border: 'border-rose-500/25',
+    color: 'text-rose-700',
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
     icon: Activity,
   },
 }
@@ -50,9 +49,9 @@ export default function InsightsFeed({ insights = [] }) {
 
   if (!insights.length) {
     return (
-      <div className="rounded-2xl glass-panel border border-slate-800 bg-slate-900/40 p-8 text-center">
-        <Sparkles className="w-8 h-8 text-slate-500 mx-auto mb-2" />
-        <p className="text-sm font-semibold text-slate-300">No Specific Anomalies or Insights Detected</p>
+      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-2xs">
+        <Sparkles className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+        <p className="text-sm font-bold text-slate-800">No Specific Outliers or Anomalies Detected</p>
         <p className="text-xs text-slate-500 mt-1">The dataset appears evenly distributed across standard metrics.</p>
       </div>
     )
@@ -73,16 +72,16 @@ export default function InsightsFeed({ insights = [] }) {
   return (
     <div className="space-y-4">
       {/* Category Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
         <Filter className="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" />
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveFilter(cat)}
-            className={`px-3 py-1 rounded-lg text-xs font-medium border transition cursor-pointer whitespace-nowrap ${
+            className={`px-3 py-1 rounded-md text-xs font-semibold border transition cursor-pointer whitespace-nowrap ${
               activeFilter === cat
-                ? 'bg-indigo-600 border-indigo-500 text-white shadow-sm shadow-indigo-500/20'
-                : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
+                : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 shadow-2xs'
             }`}
           >
             {cat} {cat === 'ALL' ? `(${insights.length})` : ''}
@@ -94,9 +93,9 @@ export default function InsightsFeed({ insights = [] }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredInsights.map((item) => {
           const conf = CATEGORY_CONFIG[item.category] || {
-            color: 'text-indigo-400',
-            bg: 'bg-indigo-500/10',
-            border: 'border-indigo-500/25',
+            color: 'text-emerald-700',
+            bg: 'bg-emerald-50',
+            border: 'border-emerald-200',
             icon: Sparkles,
           }
           const IconComponent = conf.icon
@@ -105,29 +104,29 @@ export default function InsightsFeed({ insights = [] }) {
           return (
             <div
               key={item.id}
-              className="rounded-2xl glass-panel border border-slate-800/80 bg-slate-900/60 p-5 flex flex-col justify-between hover:border-slate-700 transition space-y-4"
+              className="rounded-xl border border-slate-200/90 bg-white p-5 flex flex-col justify-between hover:border-slate-300 transition space-y-3 shadow-2xs hover:shadow-xs"
             >
               <div>
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <div className={`w-8 h-8 rounded-xl ${conf.bg} ${conf.border} border flex items-center justify-center shrink-0`}>
+                    <div className={`w-8 h-8 rounded-lg ${conf.bg} ${conf.border} border flex items-center justify-center shrink-0`}>
                       <IconComponent className={`w-4 h-4 ${conf.color}`} />
                     </div>
                     <div>
                       <span className={`text-[10px] font-bold uppercase tracking-wider ${conf.color}`}>
                         {item.category}
                       </span>
-                      <h4 className="text-sm font-bold text-slate-100 leading-snug">{item.title}</h4>
+                      <h4 className="text-sm font-bold text-slate-900 leading-snug">{item.title}</h4>
                     </div>
                   </div>
 
                   {item.impact && (
                     <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0 border ${
                         item.impact === 'high'
-                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                          : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'
+                          ? 'bg-rose-50 text-rose-800 border-rose-200'
+                          : 'bg-sky-50 text-sky-800 border-sky-200'
                       }`}
                     >
                       {item.impact} Impact
@@ -136,19 +135,19 @@ export default function InsightsFeed({ insights = [] }) {
                 </div>
 
                 {/* Description */}
-                <p className="text-xs text-slate-300 mt-3 leading-relaxed">
+                <p className="text-xs text-slate-600 mt-2.5 leading-relaxed">
                   {item.description}
                 </p>
               </div>
 
               {/* Footer info & copy */}
-              <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2">
                   <span className="text-slate-500 font-mono text-[10px] truncate max-w-[180px]">
                     {item.column}
                   </span>
                   {item.metric && (
-                    <span className="font-mono font-bold text-indigo-300 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                    <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[10px]">
                       {item.metric}
                     </span>
                   )}
@@ -156,13 +155,13 @@ export default function InsightsFeed({ insights = [] }) {
 
                 <button
                   onClick={() => handleCopy(item.id, `${item.title}: ${item.description}`)}
-                  className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-200 transition cursor-pointer"
-                  title="Copy insight"
+                  className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-700 transition cursor-pointer font-medium"
+                  title="Copy insight text"
                 >
                   {isCopied ? (
                     <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-400 text-[10px]">Copied</span>
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      <span className="text-emerald-700 text-[10px] font-bold">Copied</span>
                     </>
                   ) : (
                     <>

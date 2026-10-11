@@ -14,45 +14,40 @@ export default function MetricsRow({ dataset }) {
       value: rowCount ? rowCount.toLocaleString() : '0',
       icon: Rows,
       subtext: 'Observed records',
-      gradient: 'from-indigo-500/10 to-indigo-500/0',
-      iconColor: 'text-indigo-400',
-      borderColor: 'border-indigo-500/20',
+      iconColor: 'text-slate-600',
+      badgeColor: 'bg-slate-100',
     },
     {
       label: 'Total Columns',
       value: columnCount || (dataset.columnNames ? dataset.columnNames.length : 0),
       icon: Columns,
       subtext: 'Features profiled',
-      gradient: 'from-cyan-500/10 to-cyan-500/0',
-      iconColor: 'text-cyan-400',
-      borderColor: 'border-cyan-500/20',
+      iconColor: 'text-slate-600',
+      badgeColor: 'bg-slate-100',
     },
     {
-      label: 'Missing Values',
+      label: 'Missing Cells',
       value: `${totalMissingValues || 0} (${missingPercentage || 0}%)`,
       icon: hasMissing ? AlertTriangle : CheckCircle2,
-      subtext: hasMissing ? 'Requires imputation' : '100% complete fields',
-      gradient: hasMissing ? 'from-amber-500/10 to-amber-500/0' : 'from-emerald-500/10 to-emerald-500/0',
-      iconColor: hasMissing ? 'text-amber-400' : 'text-emerald-400',
-      borderColor: hasMissing ? 'border-amber-500/20' : 'border-emerald-500/20',
+      subtext: hasMissing ? 'Requires imputation' : 'Complete fields',
+      iconColor: hasMissing ? 'text-amber-600' : 'text-emerald-600',
+      badgeColor: hasMissing ? 'bg-amber-50' : 'bg-emerald-50',
     },
     {
       label: 'Duplicate Rows',
       value: duplicateRows || 0,
       icon: hasDuplicates ? AlertTriangle : CopyCheck,
-      subtext: hasDuplicates ? 'Redundant records found' : 'All rows unique',
-      gradient: hasDuplicates ? 'from-rose-500/10 to-rose-500/0' : 'from-emerald-500/10 to-emerald-500/0',
-      iconColor: hasDuplicates ? 'text-rose-400' : 'text-emerald-400',
-      borderColor: hasDuplicates ? 'border-rose-500/20' : 'border-emerald-500/20',
+      subtext: hasDuplicates ? 'Redundant records' : 'All rows unique',
+      iconColor: hasDuplicates ? 'text-rose-600' : 'text-emerald-600',
+      badgeColor: hasDuplicates ? 'bg-rose-50' : 'bg-emerald-50',
     },
     {
-      label: 'File Size & Type',
+      label: 'Size & Format',
       value: `${dataset.fileSizeKb || 0} KB`,
       icon: HardDrive,
       subtext: `${dataset.fileType ? dataset.fileType.toUpperCase() : 'CSV'} dataset`,
-      gradient: 'from-purple-500/10 to-purple-500/0',
-      iconColor: 'text-purple-400',
-      borderColor: 'border-purple-500/20',
+      iconColor: 'text-slate-600',
+      badgeColor: 'bg-slate-100',
     },
   ]
 
@@ -63,18 +58,20 @@ export default function MetricsRow({ dataset }) {
         return (
           <div
             key={idx}
-            className={`relative p-4 rounded-xl glass-panel bg-gradient-to-b ${metric.gradient} border ${metric.borderColor} overflow-hidden`}
+            className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-xs transition"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                 {metric.label}
               </span>
-              <Icon className={`w-4 h-4 ${metric.iconColor}`} />
+              <div className={`p-1.5 rounded-lg ${metric.badgeColor}`}>
+                <Icon className={`w-3.5 h-3.5 ${metric.iconColor}`} />
+              </div>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight font-mono">
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-mono">
               {metric.value}
             </div>
-            <p className="text-[10px] text-slate-400 mt-1 truncate">
+            <p className="text-[11px] text-slate-500 mt-1 truncate font-medium">
               {metric.subtext}
             </p>
           </div>

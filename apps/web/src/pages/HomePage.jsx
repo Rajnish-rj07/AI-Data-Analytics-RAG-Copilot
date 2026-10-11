@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import {
   Table,
-  BarChart2,
-  Server,
   Plus,
-  RefreshCw,
   Sparkles,
   FileSpreadsheet,
   AlertCircle,
-  Database,
-  FlaskConical,
   Wand2,
   LineChart,
   Bot,
   FileText,
+  ArrowRight,
+  Trash2,
+  Layers,
+  FolderOpen,
 } from 'lucide-react'
 
-import Navbar from '../components/Navbar'
+import AppLayout from '../components/AppLayout'
 import FileUploadZone from '../components/FileUploadZone'
 import MetricsRow from '../components/MetricsRow'
 import DataPreviewTable from '../components/DataPreviewTable'
@@ -37,14 +36,14 @@ export default function HomePage() {
   const [uploadStage, setUploadStage] = useState('')
   const [uploadError, setUploadError] = useState('')
 
-  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ai_da_active_tab') || 'preview')
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ai_da_active_tab') || 'overview')
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [savedDatasets, setSavedDatasets] = useState([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [showUploadModal, setShowUploadModal] = useState(false)
 
-  // System Health state (for Phase 1 cluster tab)
-  const [healthStatus, setHealthStatus] = useState({
+  // System Health state
+  const [_healthStatus, setHealthStatus] = useState({
     api: 'ok',
     ai: 'ok',
     database: 'ok',
@@ -76,7 +75,7 @@ export default function HomePage() {
           const storedId = localStorage.getItem('ai_da_active_dataset_id')
           const target = storedId
             ? res.datasets.find((d) => (d._id || d.id) === storedId)
-            : null
+            : res.datasets[0]
           if (target) {
             handleSelectDataset(target._id || target.id, false)
           }
@@ -93,7 +92,7 @@ export default function HomePage() {
     try {
       const data = await healthApi.getHealth()
       setHealthStatus({
-        api: data.services?.api || 'error',
+        api: data.services?.api || 'ok',
         ai: data.services?.ai || 'error',
         database: data.services?.database || 'disconnected',
         timestamp: data.timestamp || new Date().toISOString(),
@@ -158,6 +157,26 @@ export default function HomePage() {
     }
   }
 
+  // Handle 1-click loading the verified demo dataset
+  const handleLoadDemo = async () => {
+    setIsUploading(true)
+    setUploadProgress(20)
+    setUploadStage('Fetching verified demo sales dataset...')
+    setUploadError('')
+    try {
+      const res = await fetch('/demo_sales.csv')
+      if (!res.ok) throw new Error('Could not load demo file from server')
+      const blob = await res.blob()
+      const file = new File([blob], 'demo_ecommerce_sales.csv', { type: 'text/csv' })
+      await handleFileUpload(file)
+    } catch (err) {
+      console.error('Demo loading error:', err)
+      setUploadError(err.message || 'Failed to load demo dataset')
+      showToast('Failed to load demo dataset', 'error')
+      setIsUploading(false)
+    }
+  }
+
   // Handle selecting a saved dataset
   const handleSelectDataset = async (id, notify = true) => {
     try {
@@ -183,6 +202,7 @@ export default function HomePage() {
       if (activeDataset && (activeDataset.id === id || activeDataset._id === id)) {
         setActiveDataset(null)
         localStorage.removeItem('ai_da_active_dataset_id')
+        setActiveTab('overview')
       }
       showToast('Dataset deleted and storage purged.', 'info')
     } catch (err) {
@@ -191,448 +211,486 @@ export default function HomePage() {
     }
   }
 
+  // Workflow steps for analytical journey navigation
+  const workflowSteps = [
+    { id: 'overview', label: '1. Overview', icon: <Layers className="w-3.5 h-3.5" /> },
+    { id: 'preview', label: '2. Inspect', icon: <Table className="w-3.5 h-3.5" /> },
+    { id: 'clean', label: '3. Hygiene & Clean', icon: <Wand2 className="w-3.5 h-3.5" /> },
+    { id: 'eda', label: '4. EDA Studio', icon: <LineChart className="w-3.5 h-3.5" /> },
+    { id: 'rag', label: '5. AI Assistant', icon: <Bot className="w-3.5 h-3.5" /> },
+    { id: 'report', label: '6. BI Reports', icon: <FileText className="w-3.5 h-3.5" /> },
+  ]
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100 selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Top Navbar */}
-      <Navbar
-        activeDataset={activeDataset}
-        onOpenHistory={() => setIsHistoryOpen(true)}
-        historyCount={savedDatasets.length}
-      />
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Error notification if upload failed */}
-        {uploadError && (
-          <div className="flex items-center justify-between p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{uploadError}</span>
-            </div>
-            <button
-              onClick={() => setUploadError('')}
-              className="text-red-400 hover:text-red-300 font-bold px-2 py-0.5"
-            >
-              Dismiss
-            </button>
+    <AppLayout
+      activeDataset={activeDataset}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      onUploadClick={() => setShowUploadModal(true)}
+      onLoadDemo={handleLoadDemo}
+      onOpenHistory={() => setIsHistoryOpen(true)}
+      historyCount={savedDatasets.length}
+    >
+      {/* Upload Error Banner */}
+      {uploadError && (
+        <div className="flex items-center justify-between p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs shadow-xs">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <span>{uploadError}</span>
           </div>
-        )}
+          <button
+            onClick={() => setUploadError('')}
+            className="text-rose-600 hover:text-rose-800 font-semibold px-2 py-0.5"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
-        {/* VIEW 1: HERO / UPLOAD (When no dataset is currently active) */}
-        {!activeDataset ? (
-          <div className="space-y-10 py-6">
-            {/* Hero Header */}
-            <div className="text-center max-w-3xl mx-auto space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Next-Gen Data Analytics Platform</span>
+      {/* ── ACTIVE DATASET SUB-HEADER BAR (shown whenever a dataset is loaded) ── */}
+      {activeDataset && (
+        <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 shrink-0">
+              <FileSpreadsheet className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+                  {activeDataset.originalName}
+                </h2>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {activeDataset.fileType}
+                </span>
               </div>
-
-              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                Turn Raw Datasets into <br />
-                <span className="gradient-text">Automated Intelligence</span>
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                Upload your CSV or Excel file. Our FastAPI compute engine validates schema, infers data types, calculates statistics, and stores metadata in your MongoDB Atlas cluster.
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
+                {activeDataset.summary?.rowCount?.toLocaleString() || 0} rows • {activeDataset.columns?.length || 0} columns • {activeDataset.fileSizeKb} KB
               </p>
             </div>
-
-            {/* Drop Zone & Sample Datasets */}
-            <div className="max-w-3xl mx-auto">
-              <FileUploadZone
-                onUploadSuccess={handleFileUpload}
-                isUploading={isUploading}
-                uploadProgress={uploadProgress}
-                uploadStage={uploadStage}
-              />
-            </div>
-
-            {/* Quick Feature Pillars */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 max-w-4xl mx-auto">
-              <div className="p-4 rounded-xl glass-panel bg-slate-900/40 border-slate-800/80 space-y-1.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                  <Table className="w-4 h-4" />
-                </div>
-                <h4 className="text-xs font-bold text-slate-200">Pandas Engine Profiling</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Automatic data type inference, null detection, distribution statistics, and clean preview serialization.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl glass-panel bg-slate-900/40 border-slate-800/80 space-y-1.5">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-                  <Database className="w-4 h-4" />
-                </div>
-                <h4 className="text-xs font-bold text-slate-200">MongoDB Atlas Cloud</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Secure metadata & summary caching in your Atlas cluster for sub-millisecond retrieval and historical recall.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl glass-panel bg-slate-900/40 border-slate-800/80 space-y-1.5">
-                <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <h4 className="text-xs font-bold text-slate-200">Roadmap Ready</h4>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Built to feed seamlessly into automated cleaning (Phase 4), EDA charts (Phase 5), and RAG analytics (Phase 6).
-                </p>
-              </div>
-            </div>
           </div>
-        ) : (
-          /* VIEW 2: ACTIVE DATASET DASHBOARD */
-          <div className="space-y-6">
-            {/* Top Action Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-cyan-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-400">
-                  <FileSpreadsheet className="w-5 h-5" />
+
+          {/* Quick dataset switcher & actions */}
+          <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+            {savedDatasets.length > 1 && (
+              <select
+                value={activeDataset._id || activeDataset.id}
+                onChange={(e) => handleSelectDataset(e.target.value)}
+                className="px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium focus:outline-none focus:border-emerald-500 cursor-pointer shadow-2xs"
+                title="Switch active dataset"
+              >
+                {savedDatasets.map((d) => (
+                  <option key={d._id || d.id} value={d._id || d.id}>
+                    {d.originalName} ({d.summary?.rowCount?.toLocaleString() || 0} rows)
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer shadow-2xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Upload Another</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveDataset(null)
+                localStorage.removeItem('ai_da_active_dataset_id')
+                setActiveTab('overview')
+                showToast('Returned to Workspace Hub.', 'info')
+              }}
+              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-600 hover:text-slate-900 text-xs font-medium transition cursor-pointer"
+              title="Close dataset and return to overview"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 1: OVERVIEW & HUB ────────────────────────────────────────── */}
+      {activeTab === 'overview' && (
+        <div className="space-y-8">
+          {!activeDataset ? (
+            /* Hub View when NO dataset is active */
+            <div className="space-y-8">
+              {/* Hero Banner */}
+              <div className="p-8 sm:p-10 rounded-2xl bg-white border border-slate-200/90 shadow-xs relative overflow-hidden">
+                <div className="max-w-3xl space-y-3.5">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Automated Full-Stack Analytics Engine</span>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    Transform Raw Datasets into <br />
+                    <span className="text-emerald-700">Verified Analytical Intelligence</span>
+                  </h1>
+
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    Upload your CSV or Excel dataset to automate schema profiling, data cleaning, exploratory analysis, and AI insights. Fully backed by Python Pandas, FastAPI compute, MongoDB Atlas, and ChromaDB vector search.
+                  </p>
+
+                  <div className="pt-2 flex items-center gap-3 flex-wrap">
+                    <button
+                      onClick={handleLoadDemo}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer shadow-xs"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span>Load Demo Sales Dataset</span>
+                    </button>
+                    <button
+                      onClick={() => setShowUploadModal(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer border border-slate-200"
+                    >
+                      <Plus className="w-4 h-4 text-slate-500" />
+                      <span>Choose Custom File</span>
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-base font-bold text-white tracking-tight">
-                      {activeDataset.originalName}
-                    </h2>
-                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/25">
-                      {activeDataset.fileType}
+              </div>
+
+              {/* Upload Zone Component */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs">
+                <FileUploadZone
+                  onUploadSuccess={handleFileUpload}
+                  isUploading={isUploading}
+                  uploadProgress={uploadProgress}
+                  uploadStage={uploadStage}
+                />
+              </div>
+
+              {/* Real Saved Datasets Table */}
+              {savedDatasets.length > 0 && (
+                <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                        <FolderOpen className="w-4 h-4 text-emerald-600" />
+                        <span>Recently Uploaded Datasets</span>
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Persisted in MongoDB Atlas with computed metadata.
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium text-slate-500">
+                      {savedDatasets.length} {savedDatasets.length === 1 ? 'dataset' : 'datasets'} available
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 font-mono mt-0.5">
-                    {activeDataset.summary?.rowCount?.toLocaleString() || 0} rows • {activeDataset.columns?.length || 0} columns • {activeDataset.fileSizeKb} KB
+
+                  <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                    <table className="w-full text-left text-xs text-slate-700">
+                      <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-bold text-[10.5px] tracking-wider">
+                        <tr>
+                          <th className="px-4 py-3">Dataset Name</th>
+                          <th className="px-4 py-3">Format</th>
+                          <th className="px-4 py-3 text-right">Rows</th>
+                          <th className="px-4 py-3 text-right">Cols</th>
+                          <th className="px-4 py-3 text-right">Size</th>
+                          <th className="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 font-medium">
+                        {savedDatasets.map((d) => {
+                          const colCount = d.summary?.columnCount ?? d.columnNames?.length ?? d.columns?.length ?? 0
+                          const rowCount = d.summary?.rowCount ?? 0
+
+                          return (
+                            <tr key={d._id || d.id} className="hover:bg-slate-50/80 transition">
+                              <td className="px-4 py-3 font-semibold text-slate-900 flex items-center gap-2">
+                                <FileSpreadsheet className="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span className="truncate max-w-xs">{d.originalName}</span>
+                              </td>
+                              <td className="px-4 py-3">
+                                <span className="uppercase text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                                  {d.fileType}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-right font-mono text-slate-700 font-medium">
+                                {rowCount.toLocaleString()}
+                              </td>
+                              <td className="px-4 py-3 text-right font-mono text-slate-700 font-medium">
+                                {colCount}
+                              </td>
+                              <td className="px-4 py-3 text-right font-mono text-slate-600 text-[11px]">
+                                {d.fileSizeKb ? `${d.fileSizeKb} KB` : 'N/A'}
+                              </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => {
+                                    handleSelectDataset(d._id || d.id)
+                                    setActiveTab('preview')
+                                  }}
+                                  className="px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition"
+                                >
+                                  Open
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteDataset(d._id || d.id)}
+                                  className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                                  title="Delete dataset"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                            )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Hub View when ACTIVE dataset exists */
+            <div className="space-y-6">
+              {/* Analytical Journey Stepper */}
+              <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-semibold text-slate-800 uppercase tracking-wider">
+                    Analytical Workflow Stepper
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    Click any step to inspect or execute
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                  {workflowSteps.map((step) => {
+                    const isCurrent = activeTab === step.id
+                    return (
+                      <button
+                        key={step.id}
+                        onClick={() => setActiveTab(step.id)}
+                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs font-semibold transition text-left cursor-pointer ${
+                          isCurrent
+                            ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-2xs'
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                        }`}
+                      >
+                        <span className={isCurrent ? 'text-emerald-700' : 'text-slate-400'}>
+                          {step.icon}
+                        </span>
+                        <span className="truncate">{step.label}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* KPI Metrics Row */}
+              <MetricsRow dataset={activeDataset} />
+
+              {/* Quality Summary Banner */}
+              <DataQualityBanner dataset={activeDataset} />
+
+              {/* Quick Launch Cards for Analytics */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div
+                  onClick={() => setActiveTab('preview')}
+                  className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-xs hover:shadow-sm transition cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                      <Table className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">Data Preview & Columns</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Examine row samples, verify inferred data types, and check column cardinality.
                   </p>
                 </div>
-              </div>
 
-              {/* Action Controls & Dataset Switcher */}
-              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-                {savedDatasets.length > 1 && (
-                  <select
-                    value={activeDataset._id || activeDataset.id}
-                    onChange={(e) => handleSelectDataset(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium focus:outline-none focus:border-indigo-500 cursor-pointer shadow-sm"
-                    title="Switch active dataset"
-                  >
-                    {savedDatasets.map((d) => (
-                      <option key={d._id || d.id} value={d._id || d.id}>
-                        {d.originalName} ({d.summary?.rowCount?.toLocaleString() || 0} rows)
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <div
+                  onClick={() => setActiveTab('clean')}
+                  className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-xs hover:shadow-sm transition cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                      <Wand2 className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">Data Quality & Cleaning</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Impute missing values, drop duplicates, and generate cleaned CSV export.
+                  </p>
+                </div>
 
-                <button
+                <div
+                  onClick={() => setActiveTab('eda')}
+                  className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-xs hover:shadow-sm transition cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                      <LineChart className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">EDA Studio & Charts</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Automated multi-chart distributions, correlation matrix, and custom builders.
+                  </p>
+                </div>
+
+                <div
+                  onClick={() => setActiveTab('rag')}
+                  className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-xs hover:shadow-sm transition cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">AI Data Assistant (RAG)</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Conversational queries grounded in exact Pandas statistical metrics and ChromaDB chunks.
+                  </p>
+                </div>
+
+                <div
+                  onClick={() => setActiveTab('report')}
+                  className="p-4 rounded-xl bg-white border border-slate-200/90 hover:border-emerald-300 shadow-xs hover:shadow-sm transition cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-0.5 transition" />
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900">Executive BI Reports</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Power BI-grade report builder with standalone HTML, PDF, and CSV offline exports.
+                  </p>
+                </div>
+
+                <div
                   onClick={() => setShowUploadModal(true)}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition cursor-pointer shadow-lg shadow-indigo-600/20"
+                  className="p-4 rounded-xl bg-slate-50 border border-dashed border-slate-300 hover:border-emerald-400 shadow-2xs hover:bg-slate-100/70 transition cursor-pointer group flex flex-col justify-between"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Upload File</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setActiveDataset(null)
-                    localStorage.removeItem('ai_da_active_dataset_id')
-                    showToast('Returned to home upload screen.', 'info')
-                  }}
-                  className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition cursor-pointer"
-                  title="Close active dataset and return to upload screen"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-
-            {/* Metrics Row (5 Cards) */}
-            <MetricsRow dataset={activeDataset} />
-
-            {/* Quality Summary Banner */}
-            <DataQualityBanner dataset={activeDataset} />
-
-            {/* Tab Navigation */}
-            <div className="border-b border-white/5 flex items-center gap-1 text-xs overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('preview')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'preview'
-                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Table className="w-4 h-4" />
-                <span>Data Preview</span>
-                <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 text-[10px] font-mono">
-                  {activeDataset.preview?.length || 0}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('profiler')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'profiler'
-                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <BarChart2 className="w-4 h-4" />
-                <span>Column Profiling</span>
-                <span className="px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 text-[10px] font-mono">
-                  {activeDataset.columns?.length || 0}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('deepprofile')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'deepprofile'
-                    ? 'border-cyan-500 text-cyan-400 bg-cyan-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <FlaskConical className="w-4 h-4" />
-                <span>Deep Analytics</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/25 uppercase tracking-wider">
-                  Phase 3
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('clean')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'clean'
-                    ? 'border-emerald-500 text-emerald-400 bg-emerald-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Wand2 className="w-4 h-4" />
-                <span>Clean Data</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/25 uppercase tracking-wider">
-                  Phase 4
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('eda')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'eda'
-                    ? 'border-purple-500 text-purple-400 bg-purple-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <LineChart className="w-4 h-4" />
-                <span>EDA Studio</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 border border-purple-500/25 uppercase tracking-wider">
-                  Phase 5
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('rag')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'rag'
-                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Bot className="w-4 h-4" />
-                <span>RAG Copilot</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
-                  Phase 6
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('report')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'report'
-                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>BI Reports</span>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
-                  Phase 7
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('health')}
-                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
-                  activeTab === 'health'
-                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                <Server className="w-4 h-4" />
-                <span>Cluster Health</span>
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              </button>
-            </div>
-
-            {/* Tab 1: Data Preview Table */}
-            {activeTab === 'preview' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>Displaying initial sample rows processed and validated by Python FastAPI.</span>
-                  <span className="font-mono text-[11px] text-slate-500">Live MongoDB Document</span>
-                </div>
-                <DataPreviewTable dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 2: Column Profiler */}
-            {activeTab === 'profiler' && (
-              <div className="space-y-4">
-                <div className="text-xs text-slate-400 px-1">
-                  Statistical summary for all {activeDataset.columns?.length || 0} columns calculated via Pandas.
-                </div>
-                <ColumnProfiler columns={activeDataset.columns || []} />
-              </div>
-            )}
-
-            {/* Tab 3: Phase 3 Deep Analytics */}
-            {activeTab === 'deepprofile' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>
-                    Correlation matrix, distribution histograms, IQR outlier detection, and automated insights
-                    powered by Pandas + SciPy.
-                  </span>
-                  <span className="font-mono text-[11px] text-cyan-500">Phase 3 Engine</span>
-                </div>
-                <DeepProfileDashboard dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 4: Phase 4 Data Cleaning */}
-            {activeTab === 'clean' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>
-                    Review AI-generated cleaning plan, adjust strategies per column, confirm, and download a clean CSV.
-                    Your original file is never modified.
-                  </span>
-                  <span className="font-mono text-[11px] text-emerald-500">Phase 4 Engine</span>
-                </div>
-                <CleaningAssistant dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 5: Phase 5 Automated EDA Studio */}
-            {activeTab === 'eda' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>
-                    Automated visual discovery, dynamic multi-dimensional charts, and mathematical insights powered by Pandas & Recharts.
-                  </span>
-                  <span className="font-mono text-[11px] text-purple-400">Phase 5 EDA Engine</span>
-                </div>
-                <EdaStudio dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 6: Phase 6 RAG Copilot */}
-            {activeTab === 'rag' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                  <span>
-                    Semantic conversational intelligence & Q&A backed by ChromaDB vector store and Python statistical truth.
-                  </span>
-                  <span className="font-mono text-[11px] text-indigo-400">Phase 6 RAG Engine</span>
-                </div>
-                <RagCopilot dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 7: Phase 7 BI Reports */}
-            {activeTab === 'report' && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-xs text-slate-400 px-1 print:hidden">
-                  <span>
-                    Comprehensive Business Intelligence report distinguishing calculated Pandas facts, AI insights, and actionable recommendations.
-                  </span>
-                  <span className="font-mono text-[11px] text-indigo-400">Phase 7 BI Engine</span>
-                </div>
-                <ReportViewer dataset={activeDataset} />
-              </div>
-            )}
-
-            {/* Tab 6: System Cluster Health (Phase 1 Confirmation) */}
-            {activeTab === 'health' && (
-              <div className="p-6 rounded-2xl glass-panel bg-slate-900/60 border border-slate-800 space-y-6">
-                <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-slate-200/70 text-slate-600 flex items-center justify-center">
+                      <Plus className="w-4 h-4" />
+                    </div>
+                  </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">Full Stack Architecture Health</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      All four nodes communicating via local loopback & cloud cluster.
+                    <h4 className="text-xs font-bold text-slate-800">Upload New Dataset</h4>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Process another CSV or Excel file alongside this one.
                     </p>
                   </div>
-                  <button
-                    onClick={checkHealth}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition cursor-pointer"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Ping Services</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-2">
-                    <span className="text-xs font-semibold text-slate-400">React Frontend</span>
-                    <div className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-                      Online
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-mono">http://localhost:5173</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-2">
-                    <span className="text-xs font-semibold text-slate-400">Node.js Express API</span>
-                    <div className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-                      {healthStatus.api === 'ok' ? 'Healthy' : 'Error'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-mono">http://localhost:3001</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-2">
-                    <span className="text-xs font-semibold text-slate-400">MongoDB Atlas</span>
-                    <div className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-                      {healthStatus.database === 'ok' ? 'Connected' : 'Disconnected'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-mono">Cloud Cluster (AWS)</p>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-slate-800/40 border border-slate-700/60 space-y-2">
-                    <span className="text-xs font-semibold text-slate-400">Python FastAPI</span>
-                    <div className="text-lg font-bold text-emerald-400 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400"></span>
-                      {healthStatus.ai === 'ok' ? 'Running' : 'Unreachable'}
-                    </div>
-                    <p className="text-[11px] text-slate-500 font-mono">http://localhost:8000</p>
-                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
-      </main>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Upload Modal (when replacing/adding new dataset) */}
+      {/* ── TAB 2: DATA PREVIEW TABLE ───────────────────────────────────── */}
+      {activeTab === 'preview' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>Displaying sample rows processed and validated by Python FastAPI.</span>
+            <span className="font-mono text-[11px] text-slate-400">Live MongoDB Document</span>
+          </div>
+          <DataPreviewTable dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── TAB 3: COLUMN PROFILER ──────────────────────────────────────── */}
+      {activeTab === 'profiler' && activeDataset && (
+        <div className="space-y-4">
+          <div className="text-xs text-slate-500 px-1">
+            Statistical summary for all {activeDataset.columns?.length || 0} columns calculated via Pandas.
+          </div>
+          <ColumnProfiler columns={activeDataset.columns || []} />
+        </div>
+      )}
+
+      {/* ── TAB 4: HYGIENE & DEEP AUDIT ─────────────────────────────────── */}
+      {activeTab === 'deepprofile' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>
+              Correlation matrix, distribution histograms, IQR outlier detection, and automated insights powered by Pandas & SciPy.
+            </span>
+            <span className="font-mono text-[11px] text-emerald-700 font-semibold">Statistical Audit</span>
+          </div>
+          <DeepProfileDashboard dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── TAB 5: CLEANING STUDIO ──────────────────────────────────────── */}
+      {activeTab === 'clean' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>
+              Review AI-generated cleaning plan, configure imputation strategies per column, and download cleaned data. Your original file is untouched.
+            </span>
+            <span className="font-mono text-[11px] text-emerald-700 font-semibold">Cleaning Engine</span>
+          </div>
+          <CleaningAssistant dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── TAB 6: EDA STUDIO ───────────────────────────────────────────── */}
+      {activeTab === 'eda' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>
+              Automated visual discovery, dynamic multi-dimensional charts, and mathematical insights powered by Pandas & Recharts.
+            </span>
+            <span className="font-mono text-[11px] text-emerald-700 font-semibold">EDA Engine</span>
+          </div>
+          <EdaStudio dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── TAB 7: AI DATA ASSISTANT (RAG) ──────────────────────────────── */}
+      {activeTab === 'rag' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1">
+            <span>
+              Conversational intelligence & Q&A backed by ChromaDB vector store and Python statistical truth.
+            </span>
+            <span className="font-mono text-[11px] text-emerald-700 font-semibold">RAG Copilot</span>
+          </div>
+          <RagCopilot dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── TAB 8: BI REPORTS STUDIO ────────────────────────────────────── */}
+      {activeTab === 'report' && activeDataset && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-500 px-1 print:hidden">
+            <span>
+              Comprehensive Business Intelligence report distinguishing calculated Pandas facts, AI insights, and actionable recommendations.
+            </span>
+            <span className="font-mono text-[11px] text-emerald-700 font-semibold">BI Reports Studio</span>
+          </div>
+          <ReportViewer dataset={activeDataset} />
+        </div>
+      )}
+
+      {/* ── UPLOAD MODAL ────────────────────────────────────────────────── */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-          <div className="w-full max-w-2xl bg-[#0f1629] border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
+          <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-base font-bold text-white">Upload New Dataset</h3>
-                <p className="text-xs text-slate-400">CSV or Excel (up to 50MB)</p>
+                <h3 className="text-base font-bold text-slate-900">Upload Dataset</h3>
+                <p className="text-xs text-slate-500">CSV or Excel (up to 50MB)</p>
               </div>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 text-sm font-bold"
               >
                 ✕
               </button>
@@ -648,7 +706,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Dataset History Slide-over Drawer */}
+      {/* ── DATASET HISTORY DRAWER ─────────────────────────────────────── */}
       <DatasetHistoryDrawer
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
@@ -659,31 +717,31 @@ export default function HomePage() {
         isLoading={isLoadingHistory}
       />
 
-      {/* Floating System Toast Alert */}
+      {/* ── GLOBAL SYSTEM TOAST ────────────────────────────────────────── */}
       {toast && (
         <div className="fixed bottom-6 right-6 z-50">
           <div
-            className={`px-4 py-2.5 rounded-2xl glass-panel border shadow-2xl backdrop-blur-xl flex items-center gap-2.5 text-xs font-semibold transition-all ${
+            className={`px-4 py-2.5 rounded-xl border shadow-lg flex items-center gap-2.5 text-xs font-semibold transition-all ${
               toast.type === 'error'
-                ? 'bg-rose-950/90 border-rose-500/40 text-rose-200'
+                ? 'bg-rose-50 border-rose-200 text-rose-800'
                 : toast.type === 'info'
-                ? 'bg-indigo-950/90 border-indigo-500/40 text-indigo-200'
-                : 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200'
+                ? 'bg-sky-50 border-sky-200 text-sky-800'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-800'
             }`}
           >
             <span
               className={`w-2 h-2 rounded-full ${
                 toast.type === 'error'
-                  ? 'bg-rose-400'
+                  ? 'bg-rose-500'
                   : toast.type === 'info'
-                  ? 'bg-indigo-400'
-                  : 'bg-emerald-400'
+                  ? 'bg-sky-500'
+                  : 'bg-emerald-500'
               }`}
             />
             <span>{toast.message}</span>
           </div>
         </div>
       )}
-    </div>
+    </AppLayout>
   )
 }

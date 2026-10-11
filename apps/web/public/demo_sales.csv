@@ -1,0 +1,18 @@
+Transaction_ID,Customer_Name,Region,Product_Category,Units_Sold,Unit_Price,Discount,Total_Sales,Customer_Rating
+TXN-101,Alice Johnson,North,Electronics,2,450.00,0.05,855.00,4.8
+TXN-102,Bob Smith,South,Home Appliances,1,120.00,0.00,120.00,4.2
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-104,Diana Evans,,Furniture,3,210.00,0.15,535.50,4.5
+TXN-105,Evan Wright,West,Office Supplies,12,15.00,0.00,180.00,4.1
+TXN-106,Fiona Gallagher,North,Electronics,1,1200.00,0.05,1140.00,
+TXN-107,George Clark,South,Home Appliances,4,95.00,0.00,380.00,4.0
+TXN-108,Hannah Abbott,West,Office Supplies,,25.00,0.05,,3.8
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-109,Ian Malcolm,East,Electronics,2,600.00,0.10,1080.00,4.7
+TXN-110,Julia Roberts,North,Furniture,2,350.00,0.00,700.00,4.6
+TXN-111,Kevin Bacon,South,Electronics,45,450.00,0.20,16200.00,4.9
+TXN-112,Laura Croft,West,Home Appliances,2,180.00,,360.00,4.3
+TXN-113,Michael Scott,North,Office Supplies,8,12.50,0.00,100.00,3.5
+TXN-103,Charlie Davis,East,Electronics,5,85.00,0.10,382.50,3.9
+TXN-114,Nina Simone,East,Furniture,1,850.00,0.05,807.50,4.9
+TXN-115,Oscar Isaac,South,Office Supplies,10,8.00,0.00,80.00,4.0

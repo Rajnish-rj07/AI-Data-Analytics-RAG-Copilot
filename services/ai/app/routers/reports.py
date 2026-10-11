@@ -41,7 +41,12 @@ def _load_df(file_id: str) -> tuple[pd.DataFrame, str]:
 
 class ReportRequest(BaseModel):
     title: Optional[str] = Field(None, description="Optional custom report title")
+    subtitle: Optional[str] = Field(None, description="Optional custom report subtitle")
+    author: Optional[str] = Field(None, description="Optional author or department name")
     original_name: Optional[str] = Field(None, description="Original filename of the dataset")
+    primary_metric: Optional[str] = Field(None, description="Specific numerical column to profile")
+    primary_cat: Optional[str] = Field(None, description="Specific categorical column to slice by")
+    user_notes: Optional[str] = Field(None, description="Custom executive directives or business context")
 
 
 @router.post(
@@ -52,13 +57,18 @@ async def generate_report_endpoint(file_id: str, body: Optional[ReportRequest] =
     df, filename = _load_df(file_id)
     try:
         orig_name = body.original_name if body and body.original_name else filename
-        custom_title = body.title if body else None
         report = generate_bi_report(
             df=df,
             file_id=file_id,
             original_name=orig_name,
-            custom_title=custom_title,
+            custom_title=body.title if body else None,
+            subtitle=body.subtitle if body else None,
+            author=body.author if body else None,
+            primary_metric=body.primary_metric if body else None,
+            primary_cat=body.primary_cat if body else None,
+            user_notes=body.user_notes if body else None,
         )
         return JSONResponse(content=report)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}")
+

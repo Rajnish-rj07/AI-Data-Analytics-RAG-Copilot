@@ -233,3 +233,26 @@ async def get_dataset_profile(file_id: str):
         "file_id": file_id,
         "deep_profile": deep_profile,
     })
+
+
+@router.delete("/datasets/{file_id}", summary="Delete dataset file and vector collection")
+async def delete_dataset(file_id: str):
+    """Deletes the stored CSV/XLSX file and purges any ChromaDB vectors."""
+    matching_files = list(UPLOAD_DIR.glob(f"{file_id}.*"))
+    for f in matching_files:
+        try:
+            f.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    # Purge vector index
+    try:
+        from app.services.rag_engine import purge_dataset_index
+        purge_dataset_index(file_id)
+    except Exception:
+        pass
+
+    return JSONResponse(content={
+        "success": True,
+        "message": f"Dataset {file_id} and associated vector index purged.",
+    })

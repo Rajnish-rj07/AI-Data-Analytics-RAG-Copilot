@@ -13,6 +13,7 @@ import {
   Wand2,
   LineChart,
   Bot,
+  FileText,
 } from 'lucide-react'
 
 import Navbar from '../components/Navbar'
@@ -26,6 +27,7 @@ import DeepProfileDashboard from '../components/DeepProfileDashboard'
 import CleaningAssistant from '../components/CleaningAssistant'
 import EdaStudio from '../components/EdaStudio'
 import RagCopilot from '../components/RagCopilot'
+import ReportViewer from '../components/ReportViewer'
 import { datasetsApi, healthApi } from '../services/api'
 
 export default function HomePage() {
@@ -35,7 +37,7 @@ export default function HomePage() {
   const [uploadStage, setUploadStage] = useState('')
   const [uploadError, setUploadError] = useState('')
 
-  const [activeTab, setActiveTab] = useState('preview') // preview | profiler | quality | health
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ai_da_active_tab') || 'preview')
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [savedDatasets, setSavedDatasets] = useState([])
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
@@ -49,13 +51,36 @@ export default function HomePage() {
     timestamp: '',
   })
 
-  // Load datasets on mount
-  const loadSavedDatasets = async () => {
+  // Global Toast Alert State
+  const [toast, setToast] = useState(null)
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => {
+      setToast(null)
+    }, 3500)
+  }
+
+  // Sync activeTab to localStorage
+  useEffect(() => {
+    localStorage.setItem('ai_da_active_tab', activeTab)
+  }, [activeTab])
+
+  // Load datasets on mount and restore previous active dataset
+  const loadSavedDatasets = async (shouldRestore = true) => {
     setIsLoadingHistory(true)
     try {
       const res = await datasetsApi.getAll()
       if (res.success && res.datasets) {
         setSavedDatasets(res.datasets)
+        if (shouldRestore && res.datasets.length > 0) {
+          const storedId = localStorage.getItem('ai_da_active_dataset_id')
+          const target = storedId
+            ? res.datasets.find((d) => (d._id || d.id) === storedId)
+            : null
+          if (target) {
+            handleSelectDataset(target._id || target.id, false)
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to fetch dataset history:', err)
@@ -84,7 +109,7 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    loadSavedDatasets()
+    loadSavedDatasets(true)
     checkHealth()
   }, [])
 
@@ -114,9 +139,12 @@ export default function HomePage() {
         setUploadProgress(100)
         setUploadStage('Complete!')
         setActiveDataset(res.dataset)
+        const newId = res.dataset._id || res.dataset.id
+        localStorage.setItem('ai_da_active_dataset_id', newId)
         setActiveTab('preview')
         setShowUploadModal(false)
-        loadSavedDatasets()
+        loadSavedDatasets(false)
+        showToast(`Dataset "${res.dataset.originalName}" uploaded & profiled!`, 'success')
       } else {
         throw new Error(res.message || 'Upload failed')
       }
@@ -124,21 +152,26 @@ export default function HomePage() {
       console.error('Upload Error:', err)
       const msg = err.response?.data?.message || err.message || 'Error uploading file'
       setUploadError(msg)
+      showToast(msg, 'error')
     } finally {
       setIsUploading(false)
     }
   }
 
   // Handle selecting a saved dataset
-  const handleSelectDataset = async (id) => {
+  const handleSelectDataset = async (id, notify = true) => {
     try {
       const res = await datasetsApi.getById(id)
       if (res.success && res.dataset) {
         setActiveDataset(res.dataset)
-        setActiveTab('preview')
+        localStorage.setItem('ai_da_active_dataset_id', id)
+        if (notify) {
+          showToast(`Active dataset switched to "${res.dataset.originalName}"`, 'info')
+        }
       }
     } catch (err) {
       console.error('Failed to load dataset:', err)
+      showToast('Could not load dataset details.', 'error')
     }
   }
 
@@ -149,9 +182,12 @@ export default function HomePage() {
       setSavedDatasets((prev) => prev.filter((d) => (d._id || d.id) !== id))
       if (activeDataset && (activeDataset.id === id || activeDataset._id === id)) {
         setActiveDataset(null)
+        localStorage.removeItem('ai_da_active_dataset_id')
       }
+      showToast('Dataset deleted and storage purged.', 'info')
     } catch (err) {
       console.error('Failed to delete dataset:', err)
+      showToast('Failed to delete dataset.', 'error')
     }
   }
 
@@ -269,14 +305,41 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Upload Another Dataset Button */}
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              {/* Action Controls & Dataset Switcher */}
+              <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+                {savedDatasets.length > 1 && (
+                  <select
+                    value={activeDataset._id || activeDataset.id}
+                    onChange={(e) => handleSelectDataset(e.target.value)}
+                    className="px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-200 text-xs font-medium focus:outline-none focus:border-indigo-500 cursor-pointer shadow-sm"
+                    title="Switch active dataset"
+                  >
+                    {savedDatasets.map((d) => (
+                      <option key={d._id || d.id} value={d._id || d.id}>
+                        {d.originalName} ({d.summary?.rowCount?.toLocaleString() || 0} rows)
+                      </option>
+                    ))}
+                  </select>
+                )}
+
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition cursor-pointer shadow-lg shadow-indigo-600/20 w-full sm:w-auto"
+                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition cursor-pointer shadow-lg shadow-indigo-600/20"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Upload Another File</span>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Upload File</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveDataset(null)
+                    localStorage.removeItem('ai_da_active_dataset_id')
+                    showToast('Returned to home upload screen.', 'info')
+                  }}
+                  className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition cursor-pointer"
+                  title="Close active dataset and return to upload screen"
+                >
+                  Close
                 </button>
               </div>
             </div>
@@ -380,6 +443,21 @@ export default function HomePage() {
               </button>
 
               <button
+                onClick={() => setActiveTab('report')}
+                className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
+                  activeTab === 'report'
+                    ? 'border-indigo-500 text-indigo-400 bg-indigo-500/[0.04]'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span>BI Reports</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/25 uppercase tracking-wider">
+                  Phase 7
+                </span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('health')}
                 className={`flex items-center gap-2 px-4 py-2.5 font-medium border-b-2 transition cursor-pointer whitespace-nowrap ${
                   activeTab === 'health'
@@ -465,6 +543,19 @@ export default function HomePage() {
                   <span className="font-mono text-[11px] text-indigo-400">Phase 6 RAG Engine</span>
                 </div>
                 <RagCopilot dataset={activeDataset} />
+              </div>
+            )}
+
+            {/* Tab 7: Phase 7 BI Reports */}
+            {activeTab === 'report' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs text-slate-400 px-1 print:hidden">
+                  <span>
+                    Comprehensive Business Intelligence report distinguishing calculated Pandas facts, AI insights, and actionable recommendations.
+                  </span>
+                  <span className="font-mono text-[11px] text-indigo-400">Phase 7 BI Engine</span>
+                </div>
+                <ReportViewer dataset={activeDataset} />
               </div>
             )}
 
@@ -567,6 +658,32 @@ export default function HomePage() {
         onDeleteDataset={handleDeleteDataset}
         isLoading={isLoadingHistory}
       />
+
+      {/* Floating System Toast Alert */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div
+            className={`px-4 py-2.5 rounded-2xl glass-panel border shadow-2xl backdrop-blur-xl flex items-center gap-2.5 text-xs font-semibold transition-all ${
+              toast.type === 'error'
+                ? 'bg-rose-950/90 border-rose-500/40 text-rose-200'
+                : toast.type === 'info'
+                ? 'bg-indigo-950/90 border-indigo-500/40 text-indigo-200'
+                : 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200'
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                toast.type === 'error'
+                  ? 'bg-rose-400'
+                  : toast.type === 'info'
+                  ? 'bg-indigo-400'
+                  : 'bg-emerald-400'
+              }`}
+            />
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

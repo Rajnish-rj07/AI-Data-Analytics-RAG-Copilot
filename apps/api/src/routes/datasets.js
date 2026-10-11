@@ -180,16 +180,26 @@ datasetRouter.get('/:id', async (req, res) => {
 
 /**
  * DELETE /api/v1/datasets/:id
- * Removes dataset metadata from MongoDB.
- * Note: does NOT delete the file from the AI service yet (Phase 2 scope).
+ * Removes dataset metadata from MongoDB and purges physical files & vector indices in FastAPI.
  */
 datasetRouter.delete('/:id', async (req, res) => {
   try {
-    const dataset = await Dataset.findByIdAndDelete(req.params.id)
+    const dataset = await Dataset.findById(req.params.id)
     if (!dataset) {
       return res.status(404).json({ success: false, message: 'Dataset not found.' })
     }
-    return res.json({ success: true, message: 'Dataset deleted.' })
+
+    // Purge physical file & ChromaDB vectors in AI service
+    if (dataset.aiFileId) {
+      try {
+        await axios.delete(`${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}`, { timeout: 10000 })
+      } catch (aiErr) {
+        console.warn('[Dataset Delete Warning] AI cleanup failed:', aiErr.message)
+      }
+    }
+
+    await Dataset.findByIdAndDelete(req.params.id)
+    return res.json({ success: true, message: 'Dataset and associated vector index purged.' })
   } catch (err) {
     console.error('[Dataset Delete Error]', err.message)
     return res.status(500).json({ success: false, message: 'Could not delete dataset.' })
@@ -406,6 +416,44 @@ datasetRouter.post('/:id/rag/ask', async (req, res) => {
     const status = err.response?.status || 503
     const message = err.response?.data?.detail || 'Question answering failed.'
     console.error('[RAG Ask Error]', err.message)
+    return res.status(status).json({ success: false, message })
+  }
+})
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Phase 7 — Automated BI Report Generation & Export
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * POST /api/v1/datasets/:id/report
+ * Generate a complete, presentation-ready Business Intelligence report.
+ */
+datasetRouter.post('/:id/report', async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.id)
+    if (!dataset) return res.status(404).json({ success: false, message: 'Dataset not found.' })
+
+    const payload = {
+      title: req.body?.title,
+      subtitle: req.body?.subtitle,
+      author: req.body?.author,
+      original_name: dataset.originalName,
+      primary_metric: req.body?.primary_metric,
+      primary_cat: req.body?.primary_cat,
+      user_notes: req.body?.user_notes,
+    }
+
+    const aiRes = await axios.post(
+      `${AI_SERVICE_URL}/api/v1/datasets/${dataset.aiFileId}/report`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' }, timeout: 60000 }
+    )
+    return res.json(aiRes.data)
+  } catch (err) {
+    const status = err.response?.status || 503
+    const message = err.response?.data?.detail || 'Report generation failed.'
+    console.error('[Report Gen Error]', err.message)
     return res.status(status).json({ success: false, message })
   }
 })

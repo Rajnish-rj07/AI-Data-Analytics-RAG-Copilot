@@ -1181,3 +1181,17 @@ def answer_question(
         "retrieved_chunks": retrieved_chunks,
     }
 
+
+def purge_dataset_index(file_id: str) -> bool:
+    """Removes the ChromaDB vector collection associated with this file_id."""
+    try:
+        client = _get_chroma_client()
+        safe_id = re.sub(r"[^a-zA-Z0-9_-]", "_", file_id)[:63]
+        if not safe_id[0].isalpha():
+            safe_id = "c_" + safe_id
+        client.delete_collection(name=safe_id)
+        return True
+    except Exception:
+        return False
+
+

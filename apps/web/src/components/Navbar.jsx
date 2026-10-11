@@ -43,7 +43,7 @@ export default function Navbar({ activeDataset, onOpenHistory, historyCount }) {
                 Copilot
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">Phase 2 • Dataset Ingestion & Profiling</p>
+            <p className="text-[11px] text-slate-400 font-medium">Enterprise Analytics • Full-Stack AI Platform</p>
           </div>
         </div>
 

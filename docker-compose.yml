@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # ── MongoDB Database ────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7.0
+    container_name: aida_mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - aida-network
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Python FastAPI Engine (Analytics, Profiling, RAG & BI Reports) ──────────
+  ai:
+    build:
+      context: ./services/ai
+      dockerfile: Dockerfile
+    container_name: aida_ai_engine
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    environment:
+      - PORT=8000
+      - UPLOAD_DIR=/app/uploads
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ai-uploads:/app/uploads
+      - ai-chroma:/app/chroma_store
+    networks:
+      - aida-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/v1/health']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Node.js Express Gateway (Auth, Ingestion & Metadata API) ────────────────
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: aida_api_gateway
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/ai_da_copilot
+      - AI_SERVICE_URL=http://ai:8000
+      - UPLOAD_MAX_SIZE_MB=50
+    depends_on:
+      mongo:
+        condition: service_healthy
+      ai:
+        condition: service_healthy
+    networks:
+      - aida-network
+
+  # ── React Vite Web Frontend (Nginx Reverse Proxy) ───────────────────────────
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: aida_web_frontend
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - api
+    networks:
+      - aida-network
+
+volumes:
+  mongo-data:
+  ai-uploads:
+  ai-chroma:
+
+networks:
+  aida-network:
+    driver: bridge

@@ -87,6 +87,13 @@ export const datasetsApi = {
     const res = await api.post(`/datasets/${id}/rag/ask`, { question, top_k: topK })
     return res.data
   },
+
+  generateReport: async (id, params = {}) => {
+    const payload = typeof params === 'string' ? { title: params } : (params || {})
+    const res = await api.post(`/datasets/${id}/report`, payload)
+    return res.data
+  },
 }
 
 export default api
+
